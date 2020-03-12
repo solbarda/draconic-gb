@@ -20,6 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="ThirdParty\glad\src\glad.c" />
+    <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_sdl.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -90,7 +97,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\glad\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\gl3w\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,5 +144,17 @@
   <ItemGroup>
     <None Include="ThirdParty\SDL\lib\64\SDL2.dll" />
     <None Include="ThirdParty\SDL\lib\x86\SDL2.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ThirdParty\glad\include\glad\glad.h" />
+    <ClInclude Include="ThirdParty\glad\include\KHR\khrplatform.h" />
+    <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_opengl3.h" />
+    <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_sdl.h" />
+    <ClInclude Include="ThirdParty\imgui\imconfig.h" />
+    <ClInclude Include="ThirdParty\imgui\imgui.h" />
+    <ClInclude Include="ThirdParty\imgui\imgui_internal.h" />
+    <ClInclude Include="ThirdParty\imgui\imstb_rectpack.h" />
+    <ClInclude Include="ThirdParty\imgui\imstb_textedit.h" />
+    <ClInclude Include="ThirdParty\imgui\imstb_truetype.h" />
   </ItemGroup>
 </Project>

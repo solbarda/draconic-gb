@@ -16,14 +16,82 @@
     <Filter Include="Source Files\Source">
       <UniqueIdentifier>{680c07fc-ddf8-4700-a662-c41a6f19f1fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ThirdParty">
+      <UniqueIdentifier>{be327a5c-eef6-45db-839f-5fb3916dd97a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ThirdParty\imgui">
+      <UniqueIdentifier>{293c8830-1f35-4fd6-b693-c1aa84a77602}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ThirdParty\glad">
+      <UniqueIdentifier>{8737fbe4-23f7-42c4-b663-b880a63f469f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ThirdParty\SDL">
+      <UniqueIdentifier>{453b5460-f7df-4a33-9628-fc350a13e1cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ThirdParty\imgui\impl">
+      <UniqueIdentifier>{7636d672-5000-4a6b-b2f1-9142648735d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
       <Filter>Source Files\Source</Filter>
     </ClCompile>
+    <ClCompile Include="ThirdParty\glad\src\glad.c">
+      <Filter>Source Files\ThirdParty\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui.cpp">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\ThirdParty\imgui\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_sdl.cpp">
+      <Filter>Source Files\ThirdParty\imgui\impl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\SDL\lib\64\SDL2.dll" />
     <None Include="ThirdParty\SDL\lib\x86\SDL2.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ThirdParty\glad\include\KHR\khrplatform.h">
+      <Filter>Source Files\ThirdParty\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\glad\include\glad\glad.h">
+      <Filter>Source Files\ThirdParty\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui.h">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_internal.h">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_rectpack.h">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_textedit.h">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_truetype.h">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imconfig.h">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_opengl3.h">
+      <Filter>Source Files\ThirdParty\imgui\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_sdl.h">
+      <Filter>Source Files\ThirdParty\imgui\impl</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
