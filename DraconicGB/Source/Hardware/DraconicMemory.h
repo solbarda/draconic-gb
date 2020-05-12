@@ -2,51 +2,9 @@
 #include <vector>
 #include "SDL_config.h"
 #include <string>
+#include "DraconicCartridge.h"
+#include "SpecialRegister.h"
 
-
-enum class EMemoryManagerType
-{
-  DEFAULT,
-  MBC1,
-  MBC2,
-  MBC3
-};
-
-class MemoryController
-{
-public:
-
-  EMemoryManagerType MemoryType;
-  // $0000 - $7FFF, 32kB Cartridge (potentially dynamic)
-  std::vector<unsigned char> CART_ROM;
-  // $A000 - $BFFF, 8kB Cartridge external switchable RAM bank
-  std::vector<unsigned char> ERAM;
-
-  bool RTC_enabled = false;
-
-  // Bank selectors
-  unsigned char ROM_bank_id = 1;
-  unsigned char RAM_bank_id = 0;
-
-  bool RAM_bank_enabled = false;
-  bool RAM_access_enabled = false;
-
-  // Mode selector
-  unsigned char mode = 0;
-  const unsigned char MODE_ROM = 0;
-  const unsigned char MODE_RAM = 1;
-
-public:
-  unsigned char Read(uint16_t location);
-  void Write(uint16_t location, unsigned char data);
-  void Init(std::vector<unsigned char> cartridge_buffer);
-
-  // Save states
-  std::vector<unsigned char> GetRAM();
-  void SetRAM(std::vector<unsigned char> data);
-  void SaveState(std::ofstream& file);
-  void LoadState(std::ifstream& file);
-};
 
 
 class DraconicMemory
@@ -55,21 +13,57 @@ public:
   DraconicMemory();
   void Reset();
 
-//private:
-  // Memory Regions
-  std::vector<unsigned char> VRAM;		// $8000 - $9FFF, 8kB Video RAM
-  std::vector<unsigned char> OAM;		  // $FE00 - $FEA0, OAM Sprite RAM
-  std::vector<unsigned char> WRAM;		// $C000 - $DFFF, 8kB Working RAM
-  std::vector<unsigned char> ZRAM;		// $FF80 - $FFFF, 128 unsigned chars of RAM
+  std::vector<uint8_t> VRAM;		// $8000 - $9FFF, 8kB Video RAM
+  std::vector<uint8_t> OAM;		  // $FE00 - $FEA0, OAM Sprite RAM
+  std::vector<uint8_t> WRAM;		// $C000 - $DFFF, 8kB Working RAM
+  std::vector<uint8_t> ZRAM;		// $FF80 - $FFFF, 128 unsigned chars of RAM
 
-  MemoryController controller;
+  // Specialized registers for things such as timers, LCD, Sounc, etc
+
+  SpecialRegister P1;
+  SpecialRegister DIV;
+  SpecialRegister TIMA;
+  SpecialRegister TMA;
+  SpecialRegister TAC;
+
+  SpecialRegister LCDC;
+  SpecialRegister STAT;
+  SpecialRegister SCY;
+  SpecialRegister SCX;
+  SpecialRegister LYC;
+  SpecialRegister LY;
+  SpecialRegister DMA;
+
+  SpecialRegister BGP;
+  SpecialRegister OBP0;
+  SpecialRegister OBP1;
+  SpecialRegister WY;
+  SpecialRegister WX;
+
+  SpecialRegister IF;
+  SpecialRegister IE;
+
+  // Cartridge data and ROM
+  DraconicCartridge cartridge;
+
+  uint8_t video_mode;
+  uint8_t joypad_buttons;
+  uint8_t joypad_arrows;
+
 
 public:
+  void PerformDMATransfer();
+  uint8_t GetJoypadState();
   size_t GetTotalMemorySize();
   void LoadROM(std::string location);
-  unsigned char Read(uint16_t location);
-  void Write(uint16_t location, unsigned char data);
-  void WriteZeroPage(uint16_t location, unsigned char data);
+  uint8_t Read(uint16_t location);
+  void Write(uint16_t location, uint8_t data);
+  void WriteZeroPage(uint16_t location, uint8_t data);
   std::string romName;
+
+  void write_vector(std::ofstream& file, std::vector<uint8_t>& vec);
+  void load_vector(std::ifstream& file, std::vector<uint8_t>& vec);
+  void save_state(std::ofstream& file);
+  void load_state(std::ifstream& file);
 };
 

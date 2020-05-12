@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Hardware/CPU.h"
-#include "Hardware/GPU.h"
+#include "Hardware/DraconicGPU.h"
 #include "Hardware/DraconicMemory.h"
 
 #include "./../ThirdParty/glad/include/glad/glad.h"
@@ -29,14 +29,15 @@ using namespace gl;
 #else
 #include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #endif
+#include "DraconicState.h"
 
 class DraconicEmulator
 {
   
 public:
   CPU DraconicCPU;
-  DraconicMemory memory;
-  GPU DraconicGPU;
+  DraconicGPU gpu;
+  DraconicState state;
 
   void LoadROMAndStart(std::string romPath);
   int Start();
@@ -46,10 +47,13 @@ private:
   int Init();
   void  MainLoop();
 
+  void EmulatorMainLoop(float deltaTime);
+
   void DebugRender();
 
   struct SDL_Window* window;
   SDL_GLContext gl_context;
+  SDL_Renderer* renderer;
 
   // State
   bool Finished = false;
@@ -74,8 +78,39 @@ private:
   bool bDebugDisplayERAM;
 
 
-  void UpdateTimers(int numCycles);
-  void UpdateScanlines(int numCycles);
-  void DoInterrupts();
+  // -------- EVENTS ------- //
+  void handle_events();
+
+  // -------- JOYPAD ------- //
+ // void key_pressed(Key key);
+  //void key_released(Key key);
+  //int get_key_id(Key key);
+
+  // -------- SAVESTATES ------- //
+  void save_state(int id);
+  void load_state(int id);
+
+  // --------- DIVIDER --------- //
+  int divider_counter = 0;
+  int divider_frequency = 16384; // 16384 Hz or every 256 CPU clock cycles
+  void update_divider(int cycles);
+
+  // ----------TIMERS ---------- //
+  int timer_counter = 0; // this may need to be set to some calculated non zero value
+  uint8_t timer_frequency = 0;
+  void update_timers(int cycles);
+  bool timer_enabled();
+  uint8_t get_timer_frequency();
+  void set_timer_frequency();
+
+  // ------- INTERRUPTS ------- //
+  void request_interrupt(uint8_t id);
+  void do_interrupts();
+  void service_interrupt(uint8_t id);
+
+  // ------ LCD Display ------ //
+  int scanline_counter = 456; // Clock cycles per scanline draw
+  void set_lcd_status();
+  void update_scanline(int cycles);
 };
 

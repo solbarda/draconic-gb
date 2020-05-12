@@ -4,317 +4,6 @@
 #include <iostream>
 #include <fstream>
 
-bool is_bit_set(unsigned char data, unsigned char bit)
-{
-  return ((data >> bit) & 1) ? true : false;
-}
-
-unsigned char MemoryController::Read(uint16_t location)
-{
-  switch (MemoryType)
-  {
-  case EMemoryManagerType::DEFAULT:
-  {
-    if (location >= 0x0000 && location <= 0x7FFF)
-      return CART_ROM[location];
-    else if (location >= 0xA000 && location <= 0xBFFF)
-      return ERAM[location & 0x1FFF];
-    else
-      return 0x00;
-  }
-    break;
-  case EMemoryManagerType::MBC1:
-  {
-    // ROM bank 0 (read only)
-    if (location >= 0x0000 && location <= 0x3FFF)
-    {
-      return CART_ROM[location];
-    }
-    // ROM banks 01-7F (read only)
-    else if (location >= 0x4000 && location <= 0x7FFF)
-    {
-      // only ROM banks 0x00 - 0x1F can be used during mode 1
-      unsigned char temp_id = ROM_bank_id;
-
-      int offset = location - 0x4000;
-      int lookup = (temp_id * 0x4000) + offset;
-
-      return CART_ROM[lookup];
-    }
-    // RAM banks 00 - 03, if any (read/write)
-    else if (location >= 0xA000 && location <= 0xBFFF)
-    {
-      if (RAM_access_enabled == false)
-        return 0xFF;
-
-      // only RAM bank 0 can be used during ROM mode
-      unsigned char temp_id = (RAM_bank_enabled) ? RAM_bank_id : 0x00;
-
-      int offset = location - 0xA000;
-      int lookup = (temp_id * 0x2000) + offset;
-
-      return ERAM[lookup];
-    }
-  }
-    break;
-  case EMemoryManagerType::MBC2:
-    break;
-  case EMemoryManagerType::MBC3:
-  {
-    // ROM bank 0 (read only)
-    if (location >= 0x0000 && location <= 0x3FFF)
-    {
-      return CART_ROM[location];
-    }
-    // ROM banks 01-7F (read only)
-    else if (location >= 0x4000 && location <= 0x7FFF)
-    {
-      int offset = location - 0x4000;
-      int lookup = (ROM_bank_id * 0x4000) + offset;
-
-      return CART_ROM[lookup];
-    }
-    // RAM banks 00 - 03, if any (read/write)
-    else if (location >= 0xA000 && location <= 0xBFFF)
-    {
-      if (RTC_enabled)
-        return 0x00;
-
-      if (RAM_access_enabled == false)
-        return 0xFF;
-
-      int offset = location - 0xA000;
-      int lookup = (RAM_bank_id * 0x2000) + offset;
-
-      return ERAM[lookup];
-    }
-  }
-    break;
-  }
-
-  return 0;
-}
-
-void MemoryController::Write(uint16_t location, unsigned char data)
-{
-  switch (MemoryType)
-  {
-  case EMemoryManagerType::DEFAULT:
-  {
-    if (location >= 0xA000 && location <= 0xBFFF)
-      ERAM[location & 0x1FFF] = data;
-  }
-  break;
-  case EMemoryManagerType::MBC1:
-    {
-    // RAM enable (write only)
-    if (location >= 0x0000 && location <= 0x1FFF)
-    {
-      // Any value with 0x0A in lower 4 bits enables, everything else disables
-      RAM_access_enabled = ((data & 0x0A) > 0) ? true : false;
-    }
-    // ROM bank id low bits select (write only)
-    else if (location >= 0x2000 && location <= 0x3FFF)
-    {
-      // bottom 5 bits represent bank number from 0x00 -> 0x1F
-      unsigned char bank_id = data & 0x1F;
-
-      ROM_bank_id = (ROM_bank_id & 0xE0) | bank_id;
-
-      // Prevent bank zero from being accessed
-      // TODO: may need to adjust this to include other banks
-      switch (ROM_bank_id)
-      {
-      case 0x00:
-      case 0x20:
-      case 0x40:
-      case 0x60:
-        ROM_bank_id++;
-        break;
-      }
-    }
-    // RAM bank id, or upper bits of ROM bank id
-    else if (location >= 0x4000 && location <= 0x5FFF)
-    {
-      // extract bottom 2 bits
-      unsigned char bank_id = data & 0x03;
-
-      // data represents RAM bank ID
-      if (RAM_bank_enabled)
-      {
-        RAM_bank_id = bank_id;
-      }
-      // data represents top bits of ROM bank ID
-      else
-      {
-        ROM_bank_id = ROM_bank_id | (bank_id << 5);
-
-        // Adjust bank ID to prevent certain banks from being accessed
-        switch (ROM_bank_id)
-        {
-        case 0x00:
-        case 0x20:
-        case 0x40:
-        case 0x60:
-          ROM_bank_id++;
-          break;
-        }
-      }
-    }
-    // Bank selector
-    else if (location >= 0x6000 && location <= 0x7FFF)
-    {
-      RAM_bank_enabled = is_bit_set(data, 0);
-    }
-    // RAM banks 00 - 03, if any (read/write)
-    else if (location >= 0xA000 && location <= 0xBFFF)
-    {
-      if (RAM_access_enabled)
-      {
-        int offset = location - 0xA000;
-        int lookup = (RAM_bank_id * 0x2000) + offset;
-
-        ERAM[lookup] = data;
-      }
-    }
-    }
-  break;
-  case EMemoryManagerType::MBC2:
-    {
-
-    }
-    break;
-  case EMemoryManagerType::MBC3:
-  {
-    if (location >= 0x0000 && location <= 0x1FFF)
-    {
-      // Any value with 0x0A in lower 4 bits enables, everything else disables
-      if ((data & 0x0A) > 0)
-      {
-        RAM_access_enabled = true;
-        RTC_enabled = true;
-      }
-      else
-      {
-        RAM_access_enabled = false;
-        RTC_enabled = false;
-      }
-    }
-    else if (location >= 0x2000 && location <= 0x3FFF)
-    {
-      // bits 0-6 bits represent bank number from 0x00 -> 0x1F
-      ROM_bank_id = data & 0x7F;
-
-      if (ROM_bank_id == 0)
-        ROM_bank_id++;
-    }
-    else if (location >= 0x4000 && location <= 0x5FFF)
-    {
-      // RAM bank
-      if (data <= 0x3)
-      {
-        RTC_enabled = false;
-        RAM_bank_id = data;
-      }
-      // RTC mapped
-      else if (data >= 0x08 && data <= 0x0C)
-      {
-        RTC_enabled = true;
-      }
-    }
-    else if (location >= 0x6000 && location <= 0x7FFF)
-    {
-      // TODO: Latch clock data
-    }
-    else if (location >= 0xA000 && location <= 0xBFFF)
-    {
-      // writing to RAM
-      if (!RTC_enabled)
-      {
-        if (!RAM_access_enabled)
-          return;
-
-        int offset = location - 0xA000;
-        int lookup = (RAM_bank_id * 0x2000) + offset;
-
-        ERAM[lookup] = data;
-      }
-      else
-      {
-        // TODO: RTC writing
-      }
-    }
-  }
-  break;
-  }
-}
-
-void MemoryController::Init(std::vector<unsigned char> cartridge_buffer)
-{
-	CART_ROM = cartridge_buffer;
-	ERAM = std::vector<unsigned char>(0x8000); // $A000 - $BFFF, 8kB switchable RAM bank, size liable to change in future
-}
-
-std::vector<unsigned char> MemoryController::GetRAM()
-{
-	return ERAM;
-}
-
-void MemoryController::SetRAM(std::vector<unsigned char> data)
-{
-	ERAM = data;
-}
-
-void MemoryController::SaveState(std::ofstream& file) {
-  switch (MemoryType)
-  {
-  case EMemoryManagerType::MBC1:
-    file.write((char*)&ROM_bank_id, sizeof(ROM_bank_id));
-    file.write((char*)&RAM_bank_id, sizeof(RAM_bank_id));
-    file.write((char*)&RAM_bank_enabled, sizeof(RAM_bank_enabled));
-    file.write((char*)&RAM_access_enabled, sizeof(RAM_access_enabled));
-    file.write((char*)&mode, sizeof(mode));
-    std::cout << "wrote registers" << std::endl;
-    break;
-  case EMemoryManagerType::MBC3:
-    file.write((char*)&ROM_bank_id, sizeof(ROM_bank_id));
-    file.write((char*)&RAM_bank_id, sizeof(RAM_bank_id));
-    file.write((char*)&RAM_bank_enabled, sizeof(RAM_bank_enabled));
-    file.write((char*)&RAM_access_enabled, sizeof(RAM_access_enabled));
-    file.write((char*)&mode, sizeof(mode));
-    file.write((char*)&RTC_enabled, sizeof(RTC_enabled));
-    std::cout << "wrote registers" << std::endl;
-    break;
-  default:
-    std::cout << "did nothing" << std::endl;
-  }
-}
-void MemoryController::LoadState(std::ifstream& file) {
-
-  switch (MemoryType)
-  {
-  case EMemoryManagerType::MBC1:
-    file.read((char*)&ROM_bank_id, sizeof(ROM_bank_id));
-    file.read((char*)&RAM_bank_id, sizeof(RAM_bank_id));
-    file.read((char*)&RAM_bank_enabled, sizeof(RAM_bank_enabled));
-    file.read((char*)&RAM_access_enabled, sizeof(RAM_access_enabled));
-    file.read((char*)&mode, sizeof(mode));
-    std::cout << "read registers" << std::endl;
-    break;
-  case EMemoryManagerType::MBC3:
-    file.read((char*)&ROM_bank_id, sizeof(ROM_bank_id));
-    file.read((char*)&RAM_bank_id, sizeof(RAM_bank_id));
-    file.read((char*)&RAM_bank_enabled, sizeof(RAM_bank_enabled));
-    file.read((char*)&RAM_access_enabled, sizeof(RAM_access_enabled));
-    file.read((char*)&mode, sizeof(mode));
-    file.read((char*)&RTC_enabled, sizeof(RTC_enabled));
-    std::cout << "read registers" << std::endl;
-    break;
-  default:
-    std::cout << "did nothing" << std::endl;
-  }
-}
-
 
 DraconicMemory::DraconicMemory()
 {
@@ -323,26 +12,26 @@ DraconicMemory::DraconicMemory()
   VRAM = std::vector<unsigned char>(0x2000); // $8000 - $9FFF, 8kB Video RAM
   OAM = std::vector<unsigned char>(0x0100); // $FE00 - $FEFF, OAM Sprite RAM, IO RAM
 
-  //// Initialize Memory Register objects for easy reference
-  //P1 = MemoryRegister(&ZRAM[0x00]);
-  //DIV = MemoryRegister(&ZRAM[0x04]);
-  //TIMA = MemoryRegister(&ZRAM[0x05]);
-  //TMA = MemoryRegister(&ZRAM[0x06]);
-  //TAC = MemoryRegister(&ZRAM[0x07]);
-  //LCDC = MemoryRegister(&ZRAM[0x40]);
-  //STAT = MemoryRegister(&ZRAM[0x41]);
-  //SCY = MemoryRegister(&ZRAM[0x42]);
-  //SCX = MemoryRegister(&ZRAM[0x43]);
-  //LY = MemoryRegister(&ZRAM[0x44]);
-  //LYC = MemoryRegister(&ZRAM[0x45]);
-  //DMA = MemoryRegister(&ZRAM[0x46]);
-  //BGP = MemoryRegister(&ZRAM[0x47]);
-  //OBP0 = MemoryRegister(&ZRAM[0x48]);
-  //OBP1 = MemoryRegister(&ZRAM[0x49]);
-  //WY = MemoryRegister(&ZRAM[0x4A]);
-  //WX = MemoryRegister(&ZRAM[0x4B]);
-  //IF = MemoryRegister(&ZRAM[0x0F]);
-  //IE = MemoryRegister(&ZRAM[0xFF]);
+  // Initialize Memory Register objects for easy reference
+  P1 = SpecialRegister(&ZRAM[0x00]);
+  DIV = SpecialRegister(&ZRAM[0x04]);
+  TIMA = SpecialRegister(&ZRAM[0x05]);
+  TMA = SpecialRegister(&ZRAM[0x06]);
+  TAC = SpecialRegister(&ZRAM[0x07]);
+  LCDC = SpecialRegister(&ZRAM[0x40]);
+  STAT = SpecialRegister(&ZRAM[0x41]);
+  SCY = SpecialRegister(&ZRAM[0x42]);
+  SCX = SpecialRegister(&ZRAM[0x43]);
+  LY = SpecialRegister(&ZRAM[0x44]);
+  LYC = SpecialRegister(&ZRAM[0x45]);
+  DMA = SpecialRegister(&ZRAM[0x46]);
+  BGP = SpecialRegister(&ZRAM[0x47]);
+  OBP0 = SpecialRegister(&ZRAM[0x48]);
+  OBP1 = SpecialRegister(&ZRAM[0x49]);
+  WY = SpecialRegister(&ZRAM[0x4A]);
+  WX = SpecialRegister(&ZRAM[0x4B]);
+  IF = SpecialRegister(&ZRAM[0x0F]);
+  IE = SpecialRegister(&ZRAM[0xFF]);
 
   Reset();
 }
@@ -354,29 +43,54 @@ void DraconicMemory::Reset()
   fill(VRAM.begin(), VRAM.end(), 0);
   fill(OAM.begin(), OAM.end(), 0);
 
-  //// The following memory locations are set to the following values after gameboy BIOS runs
-  //P1.set(0x00);
-  //DIV.set(0x00);
-  //TIMA.set(0x00);
-  //TMA.set(0x00);
-  //TAC.set(0x00);
-  //LCDC.set(0x91);
-  //SCY.set(0x00);
-  //SCX.set(0x00);
-  //LYC.set(0x00);
-  //BGP.set(0xFC);
-  //OBP0.set(0xFF);
-  //OBP1.set(0xFF);
-  //WY.set(0x00);
-  //WX.set(0x00);
-  //IF.set(0x00);
-  //IE.set(0x00);
+  // The following memory locations are set to the following values after gameboy BIOS runs
+  P1.set(0x00);
+  DIV.set(0x00);
+  TIMA.set(0x00);
+  TMA.set(0x00);
+  TAC.set(0x00);
+  LCDC.set(0x91);
+  SCY.set(0x00);
+  SCX.set(0x00);
+  LYC.set(0x00);
+  BGP.set(0xFC);
+  OBP0.set(0xFF);
+  OBP1.set(0xFF);
+  WY.set(0x00);
+  WX.set(0x00);
+  IF.set(0x00);
+  IE.set(0x00);
 
-  //// Initialize input to HIGH state (unpressed)
-  //joypad_buttons = 0xF;
-  //joypad_arrows = 0xF;
+  // Initialize input to HIGH state (unpressed)
+  joypad_buttons = 0xF;
+  joypad_arrows = 0xF;
 }
 
+
+void DraconicMemory::PerformDMATransfer()
+{
+  uint16_t  address = DMA.get() << 8; // multiply by 100
+
+  for (int i = 0; i < 0xA0; i++)
+  {
+    Write((0xFE00 + i), Read(address + i));
+  }
+}
+
+unsigned char DraconicMemory::GetJoypadState()
+{
+  unsigned char request = P1.get();
+
+  switch (request)
+  {
+  case 0x10:
+    return joypad_buttons;
+  case 0x20:
+    return joypad_arrows;
+  default:
+    return 0xFF;
+  }
+}
 
 size_t DraconicMemory::GetTotalMemorySize()
 {
@@ -451,27 +165,27 @@ void DraconicMemory::LoadROM(std::string location)
   case 0x01:
   case 0x02:
   case 0x03:
-    controller.MemoryType = EMemoryManagerType::MBC1;
+    cartridge.MemoryType = EMemoryBankControllerType::MBC1;
     break;
   case 0x05:
   case 0x06:
     std::cout << "CONTROLLER NOT IMPLEMENTED" << std::endl;
-    controller.MemoryType = EMemoryManagerType::MBC2;
+    cartridge.MemoryType = EMemoryBankControllerType::MBC2;
     break;
   case 0x0F:
   case 0x10:
   case 0x11:
   case 0x12:
   case 0x13:
-    controller.MemoryType = EMemoryManagerType::MBC3;
+    cartridge.MemoryType = EMemoryBankControllerType::MBC3;
     break;
   default:
-    controller.MemoryType = EMemoryManagerType::DEFAULT;
+    cartridge.MemoryType = EMemoryBankControllerType::DEFAULT;
     break;
   }
 
   // Initialize controller with cartridge data
-  controller.Init(buffer);
+  cartridge.Init(buffer);
 
   unsigned char rsize = buffer[0x0148];
   std::cout << "ROM Size: " << (32 << rsize) << "kB " << pow(2, rsize + 1) << " banks" << std::endl;
@@ -504,7 +218,7 @@ unsigned char DraconicMemory::Read(uint16_t location)
   case 0x5000:
   case 0x6000:
   case 0x7000:
-    return controller.Read(location);
+    return cartridge.Read(location);
 
     // Graphics VRAM
   case 0x8000:
@@ -514,7 +228,7 @@ unsigned char DraconicMemory::Read(uint16_t location)
     // External RAM
   case 0xA000:
   case 0xB000:
-    return controller.Read(location);
+    return cartridge.Read(location);
 
     // Working RAM (8kB) and RAM Shadow
   case 0xC000:
@@ -562,7 +276,7 @@ void DraconicMemory::Write(uint16_t location, unsigned char data)
   case 0x5000:
   case 0x6000:
   case 0x7000:
-    controller.Write(location, data);
+    cartridge.Write(location, data);
     break;
 
     // Graphics VRAM
@@ -575,7 +289,7 @@ void DraconicMemory::Write(uint16_t location, unsigned char data)
     // External RAM
   case 0xA000:
   case 0xB000:
-    controller.Write(location, data);
+    cartridge.Write(location, data);
     break;
 
     // Working RAM (8kB) and RAM Shadow
@@ -623,7 +337,7 @@ void DraconicMemory::WriteZeroPage(uint16_t location, unsigned char data)
     break;
     // TODO: STAT - writing to match flag resets flag but doesn't change mode
   case 0xFF41:
-    //ZRAM[0x41] = (data & 0xFC) | (STAT.get() & 0x03);
+    ZRAM[0x41] = (data & 0xFC) | (STAT.get() & 0x03);
     break;
 
     // LY Register - Game cannot write to this register directly 
@@ -633,10 +347,30 @@ void DraconicMemory::WriteZeroPage(uint16_t location, unsigned char data)
     // DMA transfer request
   case 0xFF46:
     ZRAM[0x46] = data;
-    //do_dma_transfer();
+    PerformDMATransfer();
     break;
   default:
     ZRAM[location & 0xFF] = data;
     break;
   }
+}
+
+void DraconicMemory::write_vector(std::ofstream& file, std::vector<uint8_t>& vec)
+{
+
+}
+
+void DraconicMemory::load_vector(std::ifstream& file, std::vector<uint8_t>& vec)
+{
+
+}
+
+void DraconicMemory::save_state(std::ofstream& file)
+{
+
+}
+
+void DraconicMemory::load_state(std::ifstream& file)
+{
+
 }

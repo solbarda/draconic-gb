@@ -21,9 +21,12 @@
   <ItemGroup>
     <ClCompile Include="Source\DraconicEmulator.cpp" />
     <ClCompile Include="Source\Hardware\CPU.cpp" />
-    <ClCompile Include="Source\Hardware\GPU.cpp" />
+    <ClCompile Include="Source\Hardware\DraconicCartridge.cpp" />
+    <ClCompile Include="Source\Hardware\DraconicGPU.cpp" />
     <ClCompile Include="Source\Hardware\DraconicMemory.cpp" />
+    <ClCompile Include="Source\Hardware\SpecialRegister.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\Utils.cpp" />
     <ClCompile Include="ThirdParty\glad\src\glad.c" />
     <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_opengl3.cpp" />
     <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_sdl.cpp" />
@@ -101,7 +104,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\glad\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\gl3w\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Root\Tier1\StudentLife\UOC\TFG\Repo\draconic-gb\DraconicGB\Source;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\glad\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\gl3w\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -154,8 +157,12 @@
     <ClInclude Include="Opcodes.h" />
     <ClInclude Include="Source\DraconicEmulator.h" />
     <ClInclude Include="Source\Hardware\CPU.h" />
-    <ClInclude Include="Source\Hardware\GPU.h" />
+    <ClInclude Include="Source\Hardware\DraconicCartridge.h" />
+    <ClInclude Include="Source\Hardware\DraconicGPU.h" />
     <ClInclude Include="Source\Hardware\DraconicMemory.h" />
+    <ClInclude Include="Source\DraconicState.h" />
+    <ClInclude Include="Source\Hardware\SpecialRegister.h" />
+    <ClInclude Include="Source\Utils.h" />
     <ClInclude Include="ThirdParty\glad\include\glad\glad.h" />
     <ClInclude Include="ThirdParty\glad\include\KHR\khrplatform.h" />
     <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_opengl3.h" />

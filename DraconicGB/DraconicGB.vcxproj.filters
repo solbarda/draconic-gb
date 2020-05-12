@@ -69,10 +69,19 @@
     <ClCompile Include="Source\Hardware\CPU.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\GPU.cpp">
+    <ClCompile Include="Source\Hardware\DraconicMemory.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\DraconicMemory.cpp">
+    <ClCompile Include="Source\Hardware\DraconicCartridge.cpp">
+      <Filter>Source Files\Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\SpecialRegister.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\DraconicGPU.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
   </ItemGroup>
@@ -120,14 +129,26 @@
     <ClInclude Include="Source\Hardware\CPU.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Hardware\GPU.h">
-      <Filter>Header Files\Hardware</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Hardware\DraconicMemory.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\imgui\imgui_memory_editor.h">
       <Filter>Source Files\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DraconicState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\DraconicCartridge.h">
+      <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\SpecialRegister.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\DraconicGPU.h">
+      <Filter>Header Files\Hardware</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
