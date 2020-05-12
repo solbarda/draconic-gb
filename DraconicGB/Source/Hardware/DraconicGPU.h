@@ -40,10 +40,12 @@ public:
   GLuint bg_texture;
   GLuint window_texture;
   GLuint sprites_texture;
+  GLuint final_texture;
 
   uint8_t* bg_data;
   uint8_t* window_data;
   uint8_t* sprite_data;
+  uint8_t* final_data;
 
   PixelColor shades_of_gray[4];
 

@@ -76,6 +76,7 @@ private:
   bool bDebugDisplayZRAM;
   bool bDebugDisplayROM;
   bool bDebugDisplayERAM;
+  bool bDebugDisplayGPU;
 
 
   // -------- EVENTS ------- //

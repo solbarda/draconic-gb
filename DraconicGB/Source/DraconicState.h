@@ -13,7 +13,7 @@ struct Registers
   uint8_t L = 0;
   uint8_t F = 0; // Flags
   uint16_t SP = 0; // Stack Pointer
-  uint16_t PC = 0; // Program Counter
+  uint16_t PC = 0x100; // Program Counter
 };
 
 // State of the application, in this case this means the Memory and the CPU registers

@@ -21,6 +21,7 @@ void DraconicGPU::Init(DraconicState* newState, SDL_Window* newWindow, SDL_Rende
   bg_data = new unsigned char[160 * 144 * 4];
   window_data = new unsigned char[160 * 144 * 4];
   sprite_data = new unsigned char[160 * 144 * 4];
+  final_data = new unsigned char[160 * 144 * 4];
 
   for (int i = 0; i < 160 * 144 * 4; ++i)
   {
@@ -35,6 +36,11 @@ void DraconicGPU::Init(DraconicState* newState, SDL_Window* newWindow, SDL_Rende
   for (int i = 0; i < 160 * 144 * 4; ++i)
   {
     sprite_data[i] = 64;
+  }
+
+  for (int i = 0; i < 160 * 144 * 4; ++i)
+  {
+    final_data[i] = 64;
   }
 
 
@@ -81,6 +87,19 @@ void DraconicGPU::Init(DraconicState* newState, SDL_Window* newWindow, SDL_Rende
   // Upload pixels into texture
   glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, sprite_data);
+
+
+  // Create a OpenGL texture identifier
+  glGenTextures(1, &final_texture);
+  glBindTexture(GL_TEXTURE_2D, final_texture);
+
+  // Setup filtering parameters for display
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  // Upload pixels into texture
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, final_data);
 
 }
 
@@ -129,12 +148,31 @@ void DraconicGPU::render()
 
   //SDL_UpdateTexture(bg_array, NULL, pixels, 160 * sizeof(Uint32));
 
+
+  for (int i = 0; i < 160 * 144; ++i)
+  {
+    final_data[i * 4] = bg_data[i * 4];
+    final_data[i * 4+1] = bg_data[i * 4+1];
+    final_data[i * 4+2] = bg_data[i * 4+2];
+    final_data[i * 4+3] = bg_data[i * 4+3];
+    if (sprite_data[i*4 + 3] > 0)
+    {
+      final_data[i * 4] = sprite_data[i * 4];
+      final_data[i * 4 + 1] = sprite_data[i * 4 + 1];
+      final_data[i * 4 + 2] = sprite_data[i * 4 + 2];
+      final_data[i * 4 + 3] = sprite_data[i * 4 + 3];
+    }
+  }
+
+
   glBindTexture(GL_TEXTURE_2D, bg_texture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bg_data);
   glBindTexture(GL_TEXTURE_2D, window_texture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, window_data);
   glBindTexture(GL_TEXTURE_2D, sprites_texture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, sprite_data);
+  glBindTexture(GL_TEXTURE_2D, final_texture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, final_data);
 
 }
 
@@ -287,6 +325,7 @@ void DraconicGPU::update_bg_tile_pixel(uint8_t palette, int display_x, int displ
   bg_data[display_y * 160 * 4 + display_x * 4+1] = color.g;
   bg_data[display_y * 160 * 4 + display_x * 4+2] = color.b;
   bg_data[display_y * 160 * 4 + display_x * 4+3] = color.a;
+
   //bg_array.setPixel(display_x, display_y, color);
 }
 
@@ -363,7 +402,7 @@ PixelColor DraconicGPU::get_pixel_color(uint8_t palette, uint8_t top, uint8_t bo
   case 0x1: return shades_of_gray[color_1_shade];
   case 0x2: return shades_of_gray[color_2_shade];
   case 0x3: return shades_of_gray[color_3_shade];
-  default:  return PixelColor(255, 0, 255, 255); // error color
+  default:  return PixelColor(255, 0, 255, 0); // error color
   }
 }
 
@@ -444,10 +483,10 @@ void DraconicGPU::render_sprite_tile(uint8_t pallete, int start_x, int start_y, 
       // prevent pixels from being drawn off screen
       //sf::Vector2u bounds = sprites_array.getSize();
 
-      //if (pixel_x < 0 || pixel_x >= bounds.x)
-      //  continue;
-      //if (pixel_y < 0 || pixel_y >= bounds.y)
-      // continue;
+      if (pixel_x < 0 || pixel_x >= width)
+        continue;
+      if (pixel_y < 0 || pixel_y >= height)
+       continue;
 
       PixelColor color = get_pixel_color(pallete, low, high, x, true);
 
@@ -465,10 +504,10 @@ void DraconicGPU::render_sprite_tile(uint8_t pallete, int start_x, int start_y, 
           //color = sf::Color::Transparent;
         }
       }
-      window_data[pixel_y * 160 * 4 + pixel_x * 4] = color.r;
-      window_data[pixel_y * 160 * 4 + pixel_x * 4 + 1] = color.g;
-      window_data[pixel_y * 160 * 4 + pixel_x * 4 + 2] = color.b;
-      window_data[pixel_y * 160 * 4 + pixel_x * 4 + 3] = color.a;
+      sprite_data[pixel_y * 160 * 4 + pixel_x * 4] = color.r;
+      sprite_data[pixel_y * 160 * 4 + pixel_x * 4 + 1] = color.g;
+      sprite_data[pixel_y * 160 * 4 + pixel_x * 4 + 2] = color.b;
+      sprite_data[pixel_y * 160 * 4 + pixel_x * 4 + 3] = color.a;
     }
   }
 }

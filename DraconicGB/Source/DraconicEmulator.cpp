@@ -24,10 +24,24 @@ int DraconicEmulator::Start()
   // Init the window, context and hardware
   Init();
   // Load a startup ROM
-  LoadROMAndStart("./ROM/cpu_instrs/individual/01-special.gb");
+
+  // Tests
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/01-special.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/02-interrupts.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/03-op sp,hl.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/04-op r,imm.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/05-op rp.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/06-ld r,r.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/07-jr,jp,call,ret,rst.gb"); // FAIL
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/08-misc instrs.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/09-op r,r.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/10-bit ops.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/11-op a,(hl).gb");
+
+
   //LoadROMAndStart("./ROM/mealybug-tearoom/m2_win_en_toggle.gb");
   //LoadROMAndStart("./ROM/mealybug-tearoom/m3_bgp_change.gb");
-  //LoadROMAndStart("./ROM/LinkAwakening.gb");
+  LoadROMAndStart("./ROM/LinkAwakening.gb");
   //LoadROMAndStart("./ROM/Tetris (World) (Rev A).gb");
   //LoadROMAndStart("./ROM/Tetris (Japan) (En).gb");
   //LoadROMAndStart("./ROM/cpu_instrs.gb");
@@ -279,7 +293,8 @@ void DraconicEmulator::DebugRender()
         if (ImGui::MenuItem("Display ROM", NULL, &bDebugDisplayROM)) {}
         if (ImGui::MenuItem("Display ERAM", NULL, &bDebugDisplayERAM)) {}
       }
-
+      if (ImGui::MenuItem("Display GPU", NULL, &bDebugDisplayGPU)) {}
+      
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
@@ -364,14 +379,23 @@ void DraconicEmulator::DebugRender()
     }
   }
 
-  ImGui::Begin("OpenGL Texture");
-  ImGui::Text("pointer = %p", gpu.bg_texture);
-  ImGui::Text("size = %d x %d", gpu.width, gpu.height);
-  ImGui::Image((void*)(intptr_t)gpu.bg_texture, ImVec2(gpu.width, gpu.height));
-  ImGui::Image((void*)(intptr_t)gpu.window_texture, ImVec2(gpu.width, gpu.height));
-  ImGui::Image((void*)(intptr_t)gpu.sprites_texture, ImVec2(gpu.width, gpu.height));
-  ImGui::End();
+  if (bDebugDisplayGPU)
+  {
+    ImGui::Begin("GPU Debug",&bDebugDisplayGPU);
+    ImGui::Text("Background");
+    ImGui::Image((void*)(intptr_t)gpu.bg_texture, ImVec2(gpu.width, gpu.height));
+    ImGui::Text("Window");
+    ImGui::Image((void*)(intptr_t)gpu.window_texture, ImVec2(gpu.width, gpu.height));
+    ImGui::Text("Sprite");
+    ImGui::Image((void*)(intptr_t)gpu.sprites_texture, ImVec2(gpu.width, gpu.height));
+    ImGui::End();
+  }
+  
 
+
+  ImGui::Begin("GB Screen");
+  ImGui::Image((void*)(intptr_t)gpu.final_texture, ImVec2(gpu.width, gpu.height));
+  ImGui::End();
 
  
 
