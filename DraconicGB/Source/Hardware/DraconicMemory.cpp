@@ -255,8 +255,7 @@ unsigned char DraconicMemory::Read(uint16_t location)
 
     case 0xF00:
       if (location == 0xFF00)
-        return 0;
-        //return get_joypad_state();
+        return GetJoypadState();
       else
         return ZRAM[location & 0xFF];
     }

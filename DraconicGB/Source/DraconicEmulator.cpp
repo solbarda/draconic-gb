@@ -244,6 +244,12 @@ void DraconicEmulator::DebugRender()
       Finished = true;
     if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
       Finished = true;
+    if (event.type == SDL_KEYDOWN) 
+      key_pressed(event.key);
+    if (event.type == SDL_KEYUP)
+      key_released(event.key);
+    
+    
   }
 
   // Start the Dear ImGui frame
@@ -456,102 +462,103 @@ void DraconicEmulator::handle_events()
   }*/
 }
 
-//void DraconicEmulator::key_pressed(Key key)
-//{
-//  //// Function keys F1 thru F12
-//  //if (key >= 85 && key <= 96)
-//  //{
-//  //  int id = key - 84;
-//  //  if (sf::Keyboard::isKeyPressed(Key::LShift))
-//  //    save_state(id);
-//  //  else
-//  //    load_state(id);
-//  //  return;
-//  //}
-//
-//  //if (key == Key::Space)
-//  //{
-//  //  cpu.CLOCK_SPEED *= 100;
-//  //  return;
-//  //}
-//
-//  //int key_id = get_key_id(key);
-//
-//  //if (key_id < 0)
-//  //  return;
-//
-//  //bool directional = false;
-//
-//  //if (key == Key::Up || key == Key::Down || key == Key::Left || key == Key::Right)
-//  //{
-//  //  directional = true;
-//  //}
-//
-//  //uint8_t joypad = (directional) ? memory.joypad_arrows : memory.joypad_buttons;
-//  //bool unpressed = is_bit_set(joypad, key_id);
-//
-//  //if (!unpressed)
-//  //  return;
-//
-//  //if (directional)
-//  //  memory.joypad_arrows = clear_bit(joypad, key_id);
-//  //else
-//  //  memory.joypad_buttons = clear_bit(joypad, key_id);
-//
-//  //request_interrupt(INTERRUPT_JOYPAD);
-//}
-//
-//void DraconicEmulator::key_released(Key key)
-//{
-// /* if (key == Key::Space)
-//  {
-//    cpu.CLOCK_SPEED /= 100;
-//  }
-//
-//  int key_id = get_key_id(key);
-//
-//  if (key_id < 0)
-//    return;
-//
-//  bool directional = false;
-//
-//  if (key == Key::Up || key == Key::Down || key == Key::Left || key == Key::Right)
-//  {
-//    directional = true;
-//  }
-//
-//  uint8_t joypad = (directional) ? memory.joypad_arrows : memory.joypad_buttons;
-//  bool unpressed = is_bit_set(joypad, key_id);
-//
-//  if (unpressed)
-//    return;
-//
-//  if (directional)
-//    memory.joypad_arrows = set_bit(joypad, key_id);
-//  else
-//    memory.joypad_buttons = set_bit(joypad, key_id);*/
-//}
+void DraconicEmulator::key_pressed(SDL_KeyboardEvent key)
+{
+  
+  //// Function keys F1 thru F12
+  //if (key.keysym.sym >= 85 && key.keysym.sym <= 96)
+  //{
+  //  int id = key.keysym.sym - 84;
+  //  if (sf::Keyboard::isKeyPressed(Key::LShift))
+  //    save_state(id);
+  //  else
+  //    load_state(id);
+  //  return;
+  //}
 
-//int DraconicEmulator::get_key_id(Key key)
-//{
-//  switch (key)
-//  {
-//  case Key::A:
-//  case Key::Right:
-//    return BIT_0;
-//  case Key::S: // B
-//  case Key::Left:
-//    return BIT_1;
-//  case Key::X: // select
-//  case Key::Up:
-//    return BIT_2;
-//  case Key::Z:
-//  case Key::Down:
-//    return BIT_3;
-//  default:
-//    return -1;
-//  }
-//}
+  if (key.keysym.sym == SDLK_SPACE)
+  {
+    DraconicCPU.CLOCK_SPEED *= 100;
+    return;
+  }
+
+  int key_id = get_key_id(key.keysym);
+
+  if (key_id < 0)
+    return;
+
+  bool directional = false;
+
+  if (key.keysym.sym == SDLK_UP || key.keysym.sym == SDLK_DOWN || key.keysym.sym == SDLK_LEFT|| key.keysym.sym == SDLK_RIGHT)
+  {
+    directional = true;
+  }
+
+  uint8_t joypad = (directional) ? state.memory.joypad_arrows : state.memory.joypad_buttons;
+  bool unpressed = is_bit_set(joypad, key_id);
+
+  if (!unpressed)
+    return;
+
+  if (directional)
+    state.memory.joypad_arrows = clear_bit(joypad, key_id);
+  else
+    state.memory.joypad_buttons = clear_bit(joypad, key_id);
+
+  request_interrupt(INTERRUPT_JOYPAD);
+}
+
+void DraconicEmulator::key_released(SDL_KeyboardEvent key)
+{
+  if (key.keysym.sym == SDLK_SPACE)
+  {
+    DraconicCPU.CLOCK_SPEED /= 100;
+  }
+
+  int key_id = get_key_id(key.keysym);
+
+  if (key_id < 0)
+    return;
+
+  bool directional = false;
+
+  if (key.keysym.sym == SDLK_UP || key.keysym.sym == SDLK_DOWN || key.keysym.sym == SDLK_LEFT || key.keysym.sym == SDLK_RIGHT)
+  {
+    directional = true;
+  }
+
+  uint8_t joypad = (directional) ? state.memory.joypad_arrows : state.memory.joypad_buttons;
+  bool unpressed = is_bit_set(joypad, key_id);
+
+  if (unpressed)
+    return;
+
+  if (directional)
+    state.memory.joypad_arrows = set_bit(joypad, key_id);
+  else
+    state.memory.joypad_buttons = set_bit(joypad, key_id);
+}
+
+int DraconicEmulator::get_key_id(SDL_Keysym key)
+{
+  switch (key.sym)
+  {
+  case SDLK_a:
+  case SDLK_RIGHT:
+    return BIT_0;
+  case SDLK_s: // B
+  case SDLK_LEFT:
+    return BIT_1;
+  case SDLK_x: // select
+  case SDLK_UP:
+    return BIT_2;
+  case SDLK_z:
+  case SDLK_DOWN:
+    return BIT_3;
+  default:
+    return -1;
+  }
+}
 
 void DraconicEmulator::update_divider(int cycles)
 {

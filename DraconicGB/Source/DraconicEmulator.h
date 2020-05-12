@@ -83,9 +83,9 @@ private:
   void handle_events();
 
   // -------- JOYPAD ------- //
- // void key_pressed(Key key);
-  //void key_released(Key key);
-  //int get_key_id(Key key);
+  void key_pressed(SDL_KeyboardEvent key);
+  void key_released(SDL_KeyboardEvent key);
+  int get_key_id(SDL_Keysym key);
 
   // -------- SAVESTATES ------- //
   void save_state(int id);

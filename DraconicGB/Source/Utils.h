@@ -13,7 +13,7 @@ const unsigned char BIT_4 = 4;
 const unsigned char BIT_3 = 3;
 const unsigned char BIT_2 = 2;
 const unsigned char BIT_1 = 1;
-const unsigned char BIT_0 = 1;
+const unsigned char BIT_0 = 0;
 
 // Interrupt register bit values
 const uint8_t INTERRUPT_VBLANK = 0;
