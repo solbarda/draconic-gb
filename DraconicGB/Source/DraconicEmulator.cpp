@@ -9,10 +9,13 @@
 #include <iosfwd>
 #include "SDL_syswm.h"
 #include <bitset>
+#include <commdlg.h>
 
 
 void DraconicEmulator::LoadROMAndStart(std::string romPath)
 {
+  state.memory.Reset();
+  state.registers.Reset();
   // First we load the ROM into memory
   state.memory.LoadROM(romPath);
   // We set the bEmulatorStarted flag to true so the the CPU can perform its tasks
@@ -41,7 +44,7 @@ int DraconicEmulator::Start()
 
   //LoadROMAndStart("./ROM/mealybug-tearoom/m2_win_en_toggle.gb");
   //LoadROMAndStart("./ROM/mealybug-tearoom/m3_bgp_change.gb");
-  LoadROMAndStart("./ROM/LinkAwakening.gb");
+  //LoadROMAndStart("./ROM/LinkAwakening.gb");
   //LoadROMAndStart("./ROM/Tetris (World) (Rev A).gb");
   //LoadROMAndStart("./ROM/Tetris (Japan) (En).gb");
   //LoadROMAndStart("./ROM/cpu_instrs.gb");
@@ -255,32 +258,52 @@ void DraconicEmulator::DebugRender()
     {
       if (ImGui::MenuItem("Open", "Ctrl+O"))
       {
-        // Open Rom
+        char filename[MAX_PATH];
+
+        OPENFILENAME ofn;
+        ZeroMemory(&filename, sizeof(filename));
+        ZeroMemory(&ofn, sizeof(ofn));
+        ofn.lStructSize = sizeof(ofn);
+        ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
+        ofn.lpstrFilter = "Text Files\0*.txt\0Any File\0*.*\0";
+        ofn.lpstrFile = filename;
+        ofn.nMaxFile = MAX_PATH;
+        ofn.lpstrTitle = "Select a File, yo!";
+        ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+
+        if (GetOpenFileNameA(&ofn))
+        {
+          LoadROMAndStart(filename);
+        }
 
       }
       if (ImGui::BeginMenu("Open Preset Files"))
       {
         if (ImGui::MenuItem("cpu_instrs.gb"))
-        {
+          LoadROMAndStart("./ROM/cpu_instrs/cpu_instrs.gb");
+        if (ImGui::MenuItem("01-special.gb"))
           LoadROMAndStart("./ROM/cpu_instrs/individual/01-special.gb");
-        }
-        ImGui::MenuItem("01-special.gb");
-        ImGui::MenuItem("02-interrupts.gb");
+        if (ImGui::MenuItem("Link.gb"))
+          LoadROMAndStart("./ROM/Link.gb");
+        if (ImGui::MenuItem("Kirby.gb"))
+          LoadROMAndStart("./ROM/Kirby.gb");
+        if (ImGui::MenuItem("Tetris.gb"))
+          LoadROMAndStart("./ROM/Tetris.gb");
         ImGui::EndMenu();
       }
       ImGui::Separator();
       ImGui::EndMenu();
     }
-    if (ImGui::BeginMenu("Edit"))
-    {
-      if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-      if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-      ImGui::Separator();
-      if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-      if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-      if (ImGui::MenuItem("Paste", "CTRL+V")) {}
-      ImGui::EndMenu();
-    }
+    //if (ImGui::BeginMenu("Edit"))
+    //{
+    //  if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+    //  if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+    //  ImGui::Separator();
+    //  if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+    //  if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+    //  if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+    //  ImGui::EndMenu();
+    //}
 
     if (ImGui::BeginMenu("Debug"))
     {

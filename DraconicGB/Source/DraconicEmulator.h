@@ -70,13 +70,13 @@ private:
 
 
 
-  bool bDebugDisplayVRAM;
+  bool bDebugDisplayVRAM = true;
   bool bDebugDisplayOAM;
   bool bDebugDisplayWRAM;
   bool bDebugDisplayZRAM;
   bool bDebugDisplayROM;
   bool bDebugDisplayERAM;
-  bool bDebugDisplayGPU;
+  bool bDebugDisplayGPU = true;
 
 
   // -------- EVENTS ------- //

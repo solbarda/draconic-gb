@@ -112,10 +112,10 @@ void DraconicGPU::update_scanline(uint8_t current_scanline)
   bool do_background = state->memory.LCDC.is_bit_set(BIT_0);
   bool do_window = state->memory.LCDC.is_bit_set(BIT_5);
 
-  if (do_background)
+  if (true || do_background)
     update_bg_scanline(current_scanline);
 
-  if (do_window)
+  if (true || do_window)
     update_window_scanline(current_scanline);
 }
 

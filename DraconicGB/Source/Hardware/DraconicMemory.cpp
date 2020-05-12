@@ -200,6 +200,8 @@ void DraconicMemory::LoadROM(std::string location)
   }
   std::cout << "RAM Size: " << size << "kB " << banks << " banks" << std::endl;
   std::cout << "Destination Code: " << (buffer[0x014A] == 1 ? "Non-" : "") << "Japanese" << std::endl;
+
+  input.close();
 }
 
 
