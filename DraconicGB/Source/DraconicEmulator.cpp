@@ -7,9 +7,16 @@
 #include "../ThirdParty/imgui/imgui_memory_editor.h"
 
 
+void DraconicEmulator::LoadROMAndStart(std::string romPath)
+{
+  memory.LoadROM(romPath);
+  bEmulatorStarted = true;
+}
+
 int DraconicEmulator::Start()
 {
   Init();
+  LoadROMAndStart("./ROM/cpu_instrs/individual/01-special.gb");
   MainLoop();
   return 0;
 }
@@ -120,9 +127,12 @@ int DraconicEmulator::Init()
 
 void DraconicEmulator::MainLoop()
 {
+  
+
   // Main loop
   while (!Finished)
   {
+    
     // Setup time step (we don't use SDL_GetTicks() because it is using millisecond resolution)
     static Uint64 frequency = SDL_GetPerformanceFrequency();
     Uint64 CurrentTime = SDL_GetPerformanceCounter();
@@ -130,29 +140,34 @@ void DraconicEmulator::MainLoop()
     //std::cout << "DeltaTime: " << DeltaTime << std::endl;
     DebugRender();
 
-    accumTime += DeltaTime;
 
-
-    float timeBetweenFrames = 1.0f / framerate;
-    float cyclesPerFrame = DraconicCPU.CLOCK_SPEED / framerate;
-
-    if (accumTime >= timeBetweenFrames)
+    if (bEmulatorStarted)
     {
-      int currentCycle = 0;
-     /* while (currentCycle < cyclesPerFrame)
+      accumTime += DeltaTime;
+      float timeBetweenFrames = 1.0f / framerate;
+      float cyclesPerFrame = DraconicCPU.CLOCK_SPEED / framerate;
+
+      if (accumTime >= timeBetweenFrames)
       {
-        unsigned char opCode = memory.Read(DraconicCPU.state.registers.PC);
-        DraconicCPU.ParseOpCode(opCode);
-        currentCycle += DraconicCPU.numCycles;
-        UpdateTimers(DraconicCPU.numCycles);
-        UpdateScanlines(DraconicCPU.numCycles);
-        DoInterrupts();
-        DraconicCPU.numCycles = 0;
-      }*/
-      currentCycle = 0;
-      accumTime -= timeBetweenFrames;
-      //display.scanlines_rendered = 0;
+        int currentCycle = 0;
+
+
+        /* while (currentCycle < cyclesPerFrame)
+         {
+           unsigned char opCode = memory.Read(DraconicCPU.state.registers.PC);
+           DraconicCPU.ParseOpCode(opCode);
+           currentCycle += DraconicCPU.numCycles;
+           UpdateTimers(DraconicCPU.numCycles);
+           UpdateScanlines(DraconicCPU.numCycles);
+           DoInterrupts();
+           DraconicCPU.numCycles = 0;
+         }*/
+        currentCycle = 0;
+        accumTime -= timeBetweenFrames;
+        //display.scanlines_rendered = 0;
+      }
     }
+    
 
 
   }
@@ -185,78 +200,22 @@ void DraconicEmulator::DebugRender()
   {
     if (ImGui::BeginMenu("File"))
     {
-      ImGui::MenuItem("(dummy menu)", NULL, false, false);
-      if (ImGui::MenuItem("New")) {}
-      if (ImGui::MenuItem("Open", "Ctrl+O")) {}
-      if (ImGui::BeginMenu("Open Recent"))
+      if (ImGui::MenuItem("Open", "Ctrl+O"))
       {
-        ImGui::MenuItem("fish_hat.c");
-        ImGui::MenuItem("fish_hat.inl");
-        ImGui::MenuItem("fish_hat.h");
-        if (ImGui::BeginMenu("More.."))
+        // Open Rom
+
+      }
+      if (ImGui::BeginMenu("Open Preset Files"))
+      {
+        if (ImGui::MenuItem("cpu_instrs.gb"))
         {
-          ImGui::MenuItem("Hello");
-          ImGui::MenuItem("Sailor");
-          if (ImGui::BeginMenu("Recurse.."))
-          {
-            //ShowExampleMenuFile();
-            ImGui::EndMenu();
-          }
-          ImGui::EndMenu();
+          LoadROMAndStart("./ROM/cpu_instrs/individual/01-special.gb");
         }
+        ImGui::MenuItem("01-special.gb");
+        ImGui::MenuItem("02-interrupts.gb");
         ImGui::EndMenu();
       }
-      if (ImGui::MenuItem("Save", "Ctrl+S")) {}
-      if (ImGui::MenuItem("Save As..")) {}
-
       ImGui::Separator();
-      if (ImGui::BeginMenu("Options"))
-      {
-        static bool enabled = true;
-        ImGui::MenuItem("Enabled", "", &enabled);
-        ImGui::BeginChild("child", ImVec2(0, 60), true);
-        for (int i = 0; i < 10; i++)
-          ImGui::Text("Scrolling Text %d", i);
-        ImGui::EndChild();
-        static float f = 0.5f;
-        static int n = 0;
-        ImGui::SliderFloat("Value", &f, 0.0f, 1.0f);
-        ImGui::InputFloat("Input", &f, 0.1f);
-        ImGui::Combo("Combo", &n, "Yes\0No\0Maybe\0\0");
-        ImGui::EndMenu();
-      }
-
-      if (ImGui::BeginMenu("Colors"))
-      {
-        float sz = ImGui::GetTextLineHeight();
-        for (int i = 0; i < ImGuiCol_COUNT; i++)
-        {
-          const char* name = ImGui::GetStyleColorName((ImGuiCol)i);
-          ImVec2 p = ImGui::GetCursorScreenPos();
-          ImGui::GetWindowDrawList()->AddRectFilled(p, ImVec2(p.x + sz, p.y + sz), ImGui::GetColorU32((ImGuiCol)i));
-          ImGui::Dummy(ImVec2(sz, sz));
-          ImGui::SameLine();
-          ImGui::MenuItem(name);
-        }
-        ImGui::EndMenu();
-      }
-
-      // Here we demonstrate appending again to the "Options" menu (which we already created above)
-      // Of course in this demo it is a little bit silly that this function calls BeginMenu("Options") twice.
-      // In a real code-base using it would make senses to use this feature from very different code locations.
-      if (ImGui::BeginMenu("Options")) // <-- Append!
-      {
-        static bool b = true;
-        ImGui::Checkbox("SomeOption", &b);
-        ImGui::EndMenu();
-      }
-
-      if (ImGui::BeginMenu("Disabled", false)) // Disabled
-      {
-        IM_ASSERT(0);
-      }
-      if (ImGui::MenuItem("Checked", NULL, true)) {}
-      if (ImGui::MenuItem("Quit", "Alt+F4")) {}
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Edit"))
@@ -276,6 +235,12 @@ void DraconicEmulator::DebugRender()
       if (ImGui::MenuItem("Display OAM", NULL, &bDebugDisplayOAM)) {}
       if (ImGui::MenuItem("Display WRAM", NULL, &bDebugDisplayWRAM)) {}
       if (ImGui::MenuItem("Display ZRAM", NULL, &bDebugDisplayZRAM)) {}
+      if (bEmulatorStarted)
+      {
+        if (ImGui::MenuItem("Display ROM", NULL, &bDebugDisplayROM)) {}
+        if (ImGui::MenuItem("Display ERAM", NULL, &bDebugDisplayERAM)) {}
+      }
+
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
@@ -324,6 +289,20 @@ void DraconicEmulator::DebugRender()
       size_t dataSizeZRAM = memory.ZRAM.size() * sizeof(unsigned char);
       memoryEditorZRAM.DrawWindow("ZRAM Memory Editor", memory.ZRAM.data(), dataSizeZRAM);
       bDebugDisplayZRAM = memoryEditorZRAM.Open;
+    }
+    if (bEmulatorStarted && bDebugDisplayROM)
+    {
+      static MemoryEditor memoryEditorROM;
+      size_t dataSizeROM = memory.controller.CART_ROM.size() * sizeof(unsigned char);
+      memoryEditorROM.DrawWindow("ROM Memory Editor", memory.controller.CART_ROM.data(), dataSizeROM);
+      bDebugDisplayROM = memoryEditorROM.Open;
+    }
+    if (bEmulatorStarted && bDebugDisplayERAM)
+    {
+      static MemoryEditor memoryEditorERAM;
+      size_t dataSizeERAM = memory.controller.ERAM.size() * sizeof(unsigned char);
+      memoryEditorERAM.DrawWindow("ERAM Memory Editor", memory.controller.ERAM.data(), dataSizeERAM);
+      bDebugDisplayERAM = memoryEditorERAM.Open;
     }
   }
 

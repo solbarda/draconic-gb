@@ -38,6 +38,7 @@ public:
   DraconicMemory memory;
   GPU DraconicGPU;
 
+  void LoadROMAndStart(std::string romPath);
   int Start();
   void Shutdown();
 
@@ -52,6 +53,7 @@ private:
 
   // State
   bool Finished = false;
+  bool bEmulatorStarted = false;
   bool show_demo_window = true;
   bool show_another_window = false;
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -63,10 +65,13 @@ private:
 
 
 
+
   bool bDebugDisplayVRAM;
   bool bDebugDisplayOAM;
   bool bDebugDisplayWRAM;
   bool bDebugDisplayZRAM;
+  bool bDebugDisplayROM;
+  bool bDebugDisplayERAM;
 
 
   void UpdateTimers(int numCycles);
