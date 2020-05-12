@@ -394,7 +394,7 @@ void DraconicEmulator::DebugRender()
 
 
   ImGui::Begin("GB Screen");
-  ImGui::Image((void*)(intptr_t)gpu.final_texture, ImVec2(gpu.width, gpu.height));
+  ImGui::Image((void*)(intptr_t)gpu.final_texture, ImVec2(gpu.width*2, gpu.height*2), ImVec2(0.0f, 0.0f), ImVec2(1.0f, 1.0f));
   ImGui::End();
 
  
