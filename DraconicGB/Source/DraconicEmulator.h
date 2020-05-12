@@ -2,7 +2,7 @@
 
 #include "Hardware/CPU.h"
 #include "Hardware/GPU.h"
-#include "Hardware/Memory.h"
+#include "Hardware/DraconicMemory.h"
 
 #include "./../ThirdParty/glad/include/glad/glad.h"
 #include "imgui.h"
@@ -35,7 +35,7 @@ class DraconicEmulator
   
 public:
   CPU DraconicCPU;
-  Memory DraconicMemory;
+  DraconicMemory memory;
   GPU DraconicGPU;
 
   int Start();
@@ -57,5 +57,20 @@ private:
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
   Uint64 PrevFrameTime;
   float DeltaTime;
+  float framerate = 60;
+
+  float accumTime = 0;
+
+
+
+  bool bDebugDisplayVRAM;
+  bool bDebugDisplayOAM;
+  bool bDebugDisplayWRAM;
+  bool bDebugDisplayZRAM;
+
+
+  void UpdateTimers(int numCycles);
+  void UpdateScanlines(int numCycles);
+  void DoInterrupts();
 };
 

@@ -2,7 +2,9 @@
 
 
 #include <iostream>
-
+#include "SDL_config.h"
+#include "Hardware/CPU.h"
+#include "../ThirdParty/imgui/imgui_memory_editor.h"
 
 
 int DraconicEmulator::Start()
@@ -110,6 +112,9 @@ int DraconicEmulator::Init()
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
   //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
   //IM_ASSERT(font != NULL);
+
+  DraconicCPU.Init(&memory);
+  DraconicGPU.Init(&memory);
   return 0;
 }
 
@@ -124,6 +129,32 @@ void DraconicEmulator::MainLoop()
     DeltaTime = PrevFrameTime > 0 ? (float)((double)(CurrentTime - PrevFrameTime) / frequency) : (float)(1.0f / 60.0f);
     //std::cout << "DeltaTime: " << DeltaTime << std::endl;
     DebugRender();
+
+    accumTime += DeltaTime;
+
+
+    float timeBetweenFrames = 1.0f / framerate;
+    float cyclesPerFrame = DraconicCPU.CLOCK_SPEED / framerate;
+
+    if (accumTime >= timeBetweenFrames)
+    {
+      int currentCycle = 0;
+     /* while (currentCycle < cyclesPerFrame)
+      {
+        unsigned char opCode = memory.Read(DraconicCPU.state.registers.PC);
+        DraconicCPU.ParseOpCode(opCode);
+        currentCycle += DraconicCPU.numCycles;
+        UpdateTimers(DraconicCPU.numCycles);
+        UpdateScanlines(DraconicCPU.numCycles);
+        DoInterrupts();
+        DraconicCPU.numCycles = 0;
+      }*/
+      currentCycle = 0;
+      accumTime -= timeBetweenFrames;
+      //display.scanlines_rendered = 0;
+    }
+
+
   }
 }
 
@@ -238,7 +269,62 @@ void DraconicEmulator::DebugRender()
       if (ImGui::MenuItem("Paste", "CTRL+V")) {}
       ImGui::EndMenu();
     }
+
+    if (ImGui::BeginMenu("Debug"))
+    {
+      if (ImGui::MenuItem("Display VRAM", NULL, &bDebugDisplayVRAM)) {}
+      if (ImGui::MenuItem("Display OAM", NULL, &bDebugDisplayOAM)) {}
+      if (ImGui::MenuItem("Display WRAM", NULL, &bDebugDisplayWRAM)) {}
+      if (ImGui::MenuItem("Display ZRAM", NULL, &bDebugDisplayZRAM)) {}
+      ImGui::EndMenu();
+    }
     ImGui::EndMainMenuBar();
+  }
+
+  // Stats
+  {
+    static float f = 0.0f;
+    static int counter = 0;
+
+    ImGui::Begin("Stats");                          // Create a window called "Hello, world!" and append into it.
+    ImGui::Text("ElapsedTime = %.2fms FPS: %.1f", DeltaTime * 1000.0f, 1.0f / DeltaTime);
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::Text("AccumTime  = %.2fms", accumTime*1000.0f);
+    ImGui::Text("TargetTime = %.2fms", 1000.0f/ framerate);
+    ImGui::End();
+  }
+
+
+  // Memory editor
+  {
+    if (bDebugDisplayVRAM)
+    {
+      static MemoryEditor memoryEditorVRAM;
+      size_t dataSizeVRAM = memory.VRAM.size() * sizeof(unsigned char);
+      memoryEditorVRAM.DrawWindow("VRAM Memory Editor", memory.VRAM.data(), dataSizeVRAM);
+      bDebugDisplayVRAM = memoryEditorVRAM.Open;
+    }
+    if (bDebugDisplayOAM)
+    {
+      static MemoryEditor memoryEditorOAM;
+      size_t dataSizeOAM = memory.OAM.size() * sizeof(unsigned char);
+      memoryEditorOAM.DrawWindow("OAM Memory Editor", memory.OAM.data(), dataSizeOAM);
+      bDebugDisplayOAM = memoryEditorOAM.Open;
+    }
+    if (bDebugDisplayWRAM)
+    {
+      static MemoryEditor memoryEditorWRAM;
+      size_t dataSizeWRAM = memory.WRAM.size() * sizeof(unsigned char);
+      memoryEditorWRAM.DrawWindow("WRAM Memory Editor", memory.WRAM.data(), dataSizeWRAM);
+      bDebugDisplayWRAM = memoryEditorWRAM.Open;
+    }
+    if (bDebugDisplayZRAM)
+    {
+      static MemoryEditor memoryEditorZRAM;
+      size_t dataSizeZRAM = memory.ZRAM.size() * sizeof(unsigned char);
+      memoryEditorZRAM.DrawWindow("ZRAM Memory Editor", memory.ZRAM.data(), dataSizeZRAM);
+      bDebugDisplayZRAM = memoryEditorZRAM.Open;
+    }
   }
 
   /*
@@ -291,4 +377,16 @@ void DraconicEmulator::DebugRender()
   glClear(GL_COLOR_BUFFER_BIT);
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   SDL_GL_SwapWindow(window);
+}
+
+void DraconicEmulator::UpdateTimers(int numCycles)
+{
+}
+
+void DraconicEmulator::UpdateScanlines(int numCycles)
+{
+}
+
+void DraconicEmulator::DoInterrupts()
+{
 }

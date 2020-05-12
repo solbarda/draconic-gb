@@ -22,7 +22,7 @@
     <ClCompile Include="Source\DraconicEmulator.cpp" />
     <ClCompile Include="Source\Hardware\CPU.cpp" />
     <ClCompile Include="Source\Hardware\GPU.cpp" />
-    <ClCompile Include="Source\Hardware\Memory.cpp" />
+    <ClCompile Include="Source\Hardware\DraconicMemory.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="ThirdParty\glad\src\glad.c" />
     <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_opengl3.cpp" />
@@ -102,6 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\glad\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\gl3w\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,7 +155,7 @@
     <ClInclude Include="Source\DraconicEmulator.h" />
     <ClInclude Include="Source\Hardware\CPU.h" />
     <ClInclude Include="Source\Hardware\GPU.h" />
-    <ClInclude Include="Source\Hardware\Memory.h" />
+    <ClInclude Include="Source\Hardware\DraconicMemory.h" />
     <ClInclude Include="ThirdParty\glad\include\glad\glad.h" />
     <ClInclude Include="ThirdParty\glad\include\KHR\khrplatform.h" />
     <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_opengl3.h" />
@@ -162,6 +163,7 @@
     <ClInclude Include="ThirdParty\imgui\imconfig.h" />
     <ClInclude Include="ThirdParty\imgui\imgui.h" />
     <ClInclude Include="ThirdParty\imgui\imgui_internal.h" />
+    <ClInclude Include="ThirdParty\imgui\imgui_memory_editor.h" />
     <ClInclude Include="ThirdParty\imgui\imstb_rectpack.h" />
     <ClInclude Include="ThirdParty\imgui\imstb_textedit.h" />
     <ClInclude Include="ThirdParty\imgui\imstb_truetype.h" />

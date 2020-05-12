@@ -69,10 +69,10 @@
     <ClCompile Include="Source\Hardware\CPU.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\Memory.cpp">
+    <ClCompile Include="Source\Hardware\GPU.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\GPU.cpp">
+    <ClCompile Include="Source\Hardware\DraconicMemory.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
   </ItemGroup>
@@ -120,11 +120,14 @@
     <ClInclude Include="Source\Hardware\CPU.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Hardware\Memory.h">
-      <Filter>Header Files\Hardware</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Hardware\GPU.h">
       <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\DraconicMemory.h">
+      <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_memory_editor.h">
+      <Filter>Source Files\ThirdParty\imgui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
