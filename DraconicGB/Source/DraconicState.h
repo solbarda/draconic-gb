@@ -75,7 +75,7 @@ public:
   // Functions
   void SetFlag(int flag, bool value);
   void ParseOpcode(uint8_t opCode);
-
+  void ParseBitOperation(uint8_t op);
 public:
 
   // 8-bit Arithmetic and Logic Instructions -----------------------------------
@@ -203,18 +203,37 @@ public:
   // Jumps and Subroutines ---------------------------------------
 
   void CALL_N16(uint16_t addr);
-  void CALL_CC_N16(uint8_t cc, uint16_t addr);
+  void CALLNZ_N16(uint8_t low, uint8_t high);
+  void CALLZ_N16(uint8_t low, uint8_t high);
+  void CALLNC_N16(uint8_t low, uint8_t high);
+  void CALLC_N16(uint8_t low, uint8_t high);
 
+  
+
+  void JP(uint16_t target);
   void JP_HL();
   void JP_N16(uint16_t addr);
+  void JPNZ_N16(uint16_t target);
+  void JPZ_N16(uint16_t target);
+  void JPNC_N16(uint16_t target);
+  void JPC_N16(uint16_t target);
+  void JR_N8(uint8_t value);
+
+  void JRNZ_N8(uint8_t value);
+  void JRZ_N8(uint8_t value);
+  void JRNC_N8(uint8_t value);
+  void JRC_N8(uint8_t value);
   void JP_CC_N16(uint8_t cc, uint16_t addr);
   
   void JR_E8(uint8_t offset);
   void JR_CC_E8(uint8_t cc, uint8_t offset);
 
-  void RET_CC(uint8_t cc);
   void RET();
   void RETI();
+  void RETNZ();
+  void RETZ();
+  void RETNC();
+  void RETC();
   void RST_VEC(uint8_t vec);
 
 
@@ -224,6 +243,7 @@ public:
   void ADD_SP_E8(uint8_t offset);
 
   void DEC_SP();
+  void INC_SP();
   
   void LD_SP_N16(uint16_t value);
   void LD_N16_SP(uint16_t addr);

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DraconicEmulator.cpp" />
+    <ClCompile Include="Source\DraconicOpcodes.cpp" />
     <ClCompile Include="Source\DraconicState.cpp" />
     <ClCompile Include="Source\Hardware\CPU.cpp" />
     <ClCompile Include="Source\Hardware\DraconicCartridge.cpp" />
@@ -157,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\DraconicEmulator.h" />
+    <ClInclude Include="Source\DraconicOpcodes.h" />
     <ClInclude Include="Source\Hardware\CPU.h" />
     <ClInclude Include="Source\Hardware\DraconicCartridge.h" />
     <ClInclude Include="Source\Hardware\DraconicGPU.h" />

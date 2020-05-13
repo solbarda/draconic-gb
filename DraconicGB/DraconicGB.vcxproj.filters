@@ -90,6 +90,9 @@
     <ClCompile Include="Source\DraconicState.cpp">
       <Filter>Source Files\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DraconicOpcodes.cpp">
+      <Filter>Source Files\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\SDL\lib\64\SDL2.dll" />
@@ -155,6 +158,9 @@
     </ClInclude>
     <ClInclude Include="Source\Hardware\Opcodes.h">
       <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DraconicOpcodes.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
