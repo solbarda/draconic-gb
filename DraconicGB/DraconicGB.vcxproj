@@ -24,6 +24,7 @@
     <ClCompile Include="Source\Hardware\DraconicCartridge.cpp" />
     <ClCompile Include="Source\Hardware\DraconicGPU.cpp" />
     <ClCompile Include="Source\Hardware\DraconicMemory.cpp" />
+    <ClCompile Include="Source\Hardware\Opcodes.cpp" />
     <ClCompile Include="Source\Hardware\SpecialRegister.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Utils.cpp" />
@@ -154,13 +155,13 @@
     <None Include="ThirdParty\SDL\lib\x86\SDL2.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Opcodes.h" />
     <ClInclude Include="Source\DraconicEmulator.h" />
     <ClInclude Include="Source\Hardware\CPU.h" />
     <ClInclude Include="Source\Hardware\DraconicCartridge.h" />
     <ClInclude Include="Source\Hardware\DraconicGPU.h" />
     <ClInclude Include="Source\Hardware\DraconicMemory.h" />
     <ClInclude Include="Source\DraconicState.h" />
+    <ClInclude Include="Source\Hardware\Opcodes.h" />
     <ClInclude Include="Source\Hardware\SpecialRegister.h" />
     <ClInclude Include="Source\Utils.h" />
     <ClInclude Include="ThirdParty\glad\include\glad\glad.h" />

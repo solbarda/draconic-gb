@@ -24,6 +24,7 @@ void DraconicEmulator::LoadROMAndStart(std::string romPath)
 
 int DraconicEmulator::Start()
 {
+  TestOpcodes();
   // Init the window, context and hardware
   Init();
   // Load a startup ROM
@@ -210,6 +211,7 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
       unsigned char opCode = state.memory.Read(state.registers.PC);
       // Run the opcode on the CPU
       DraconicCPU.parse_opcode(opCode);
+      //DraconicCPU.ParseOpCode(opCode);
       // Increment the cycleCount base on the number of cycles elapsed on the cpu
       currentCycle += DraconicCPU.numCycles;
       // Update the CPU Timers based on the cycles
@@ -543,16 +545,16 @@ int DraconicEmulator::get_key_id(SDL_Keysym key)
 {
   switch (key.sym)
   {
-  case SDLK_a:
+  case SDLK_z:
   case SDLK_RIGHT:
     return BIT_0;
-  case SDLK_s: // B
+  case SDLK_x: // B
   case SDLK_LEFT:
     return BIT_1;
-  case SDLK_x: // select
+  case SDLK_s: // select
   case SDLK_UP:
     return BIT_2;
-  case SDLK_z:
+  case SDLK_a:
   case SDLK_DOWN:
     return BIT_3;
   default:
@@ -651,7 +653,7 @@ void DraconicEmulator::do_interrupts()
       if (DraconicCPU.halted)
       {
         DraconicCPU.halted = false;
-        DraconicCPU.state->registers.PC += 1;
+        state.registers.PC += 1;
       }
     }
     // Loop through each bit and call interrupt for lowest . highest priority bits set
