@@ -372,3 +372,93 @@ void DraconicState::SRL_HL()
 {
 
 }
+
+void DraconicState::LD_R8_R8(uint8_t& target, uint8_t value)
+{
+
+}
+
+void DraconicState::LD_R8_N8(uint8_t& target, uint8_t value)
+{
+
+}
+
+void DraconicState::LD_R16_N16(uint16_t& target, uint16_t value)
+{
+
+}
+
+void DraconicState::LD_HL_R8(uint8_t value)
+{
+
+}
+
+void DraconicState::LD_HL_N8(uint8_t value)
+{
+
+}
+
+void DraconicState::LD_R8_HL(uint8_t& target)
+{
+
+}
+
+void DraconicState::LD_r16_A(uint16_t addr)
+{
+
+}
+
+void DraconicState::LD_n16_A(uint16_t addr)
+{
+
+}
+
+void DraconicState::LDH_n16_A(uint16_t addr)
+{
+
+}
+
+void DraconicState::LDH_C_A(uint16_t C)
+{
+
+}
+
+void DraconicState::LD_A_R16(uint16_t addr)
+{
+
+}
+
+void DraconicState::LD_A_N16(uint16_t addr)
+{
+
+}
+
+void DraconicState::LDH_A_N16(uint16_t addr)
+{
+
+}
+
+void DraconicState::LDH_A_C(uint16_t C)
+{
+
+}
+
+void DraconicState::LD_HLI_A()
+{
+
+}
+
+void DraconicState::LD_HLD_A()
+{
+
+}
+
+void DraconicState::LD_A_HLI()
+{
+
+}
+
+void DraconicState::LD_A_HLD()
+{
+
+}

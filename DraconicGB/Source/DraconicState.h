@@ -175,5 +175,31 @@ public:
 
   // Load Instructions ---------------------------------------
 
+  void LD_R8_R8(uint8_t& target, uint8_t value);
+  void LD_R8_N8(uint8_t& target, uint8_t value);
+  void LD_R16_N16(uint16_t& target, uint16_t value);
+  void LD_HL_R8(uint8_t value);
+  void LD_HL_N8(uint8_t value);
+  void LD_R8_HL(uint8_t& target);
+  void LD_r16_A(uint16_t addr);
+  void LD_n16_A(uint16_t addr);
+
+  void LDH_n16_A(uint16_t addr);
+  void LDH_C_A(uint16_t C);
+
+  void LD_A_R16(uint16_t addr);
+  void LD_A_N16(uint16_t addr);
+
+  void LDH_A_N16(uint16_t addr);
+  void LDH_A_C(uint16_t C);
+
+  void LD_HLI_A();
+  void LD_HLD_A();
+
+  void LD_A_HLI();
+  void LD_A_HLD();
+  
+
+  // Jumps and Subroutines ---------------------------------------
 
 };
