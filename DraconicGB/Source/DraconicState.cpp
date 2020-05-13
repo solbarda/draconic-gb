@@ -1,5 +1,6 @@
 #include "DraconicState.h"
 #include "Utils.h"
+#include "Hardware/CPU.h"
 
 void DraconicState::SetFlag(int flag, bool value)
 {
@@ -9,6 +10,40 @@ void DraconicState::SetFlag(int flag, bool value)
     registers.F &= ~(flag);
 }
 
+
+void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
+{
+  switch (opCode)
+  {
+  case 0x87:
+  case 0x80:
+  case 0x81:
+  case 0x82:
+  case 0x83:
+  case 0x84:
+  case 0x85:
+  case 0xC6:
+  case 0x86:
+  case 0x8F:
+  case 0x88:
+  case 0x89:
+  case 0x8A:
+  case 0x8B:
+  case 0x8C:
+  case 0x8D:
+  case 0xCE:
+  case 0x8E:
+    ParseOpcode(opCode);
+    return;
+  }
+
+  DraconicCPU->parse_opcode(opCode);
+}
+
+void DraconicState::SetCPU(CPU* _DraconicCPU)
+{
+  DraconicCPU = _DraconicCPU;
+}
 
 void DraconicState::ADC(uint8_t& target, uint8_t value8Low)
 {
@@ -243,44 +278,52 @@ void DraconicState::INC_R16(uint16_t& target)
   numCycles += 8;
 }
 
-void DraconicState::BIT_U3_R8(uint8_t value)
+void DraconicState::BIT_U3_R8(uint8_t value, uint8_t bit)
 {
-
+  registers.PC += 2;
+  numCycles += 8;
 }
 
-void DraconicState::BIT_U3_HL()
+void DraconicState::BIT_U3_HL(uint8_t bit)
 {
-
+  registers.PC += 2;
+  numCycles += 12;
 }
 
-void DraconicState::RES_U3_R8(uint8_t value)
+void DraconicState::RES_U3_R8(uint8_t& target, uint8_t value)
 {
-
+  registers.PC += 2;
+  numCycles += 8;
 }
 
-void DraconicState::RES_U3_HL()
+void DraconicState::RES_U3_HL(uint8_t value)
 {
-
+  registers.PC += 2;
+  numCycles += 16;
 }
 
-void DraconicState::SET_U3_R8(uint8_t value)
+void DraconicState::SET_U3_R8(uint8_t& target, uint8_t value)
 {
-
+  registers.PC += 2;
+  numCycles += 8;
 }
 
-void DraconicState::SET_U3_HL()
+void DraconicState::SET_U3_HL(uint8_t value)
 {
-
+  registers.PC += 2;
+  numCycles += 16;
 }
 
 void DraconicState::SWAP_R8(uint8_t& target)
 {
-
+  registers.PC += 2;
+  numCycles += 8;
 }
 
 void DraconicState::SWAP_HL()
 {
-
+  registers.PC += 2;
+  numCycles += 16;
 }
 
 void DraconicState::RL_R8(uint8_t& target)
@@ -369,33 +412,37 @@ void DraconicState::SLA_HL()
 
 void DraconicState::SRA_R8(uint8_t& target)
 {
-
+  registers.PC += 2;
+  numCycles += 8;
 }
 
 void DraconicState::SRA_HL()
 {
-
+  registers.PC += 2;
+  numCycles += 16;
 }
 
 void DraconicState::SRL_R8(uint8_t& target)
 {
-
+  registers.PC += 2;
+  numCycles += 8;
 }
 
 void DraconicState::SRL_HL()
 {
-
+  registers.PC += 2;
+  numCycles += 16;
 }
 
 void DraconicState::LD_R8_R8(uint8_t& target, uint8_t value)
 {
-  registers.pc += 1;
+  registers.PC += 1;
   numCycles += 4;
 }
 
 void DraconicState::LD_R8_N8(uint8_t& target, uint8_t value)
 {
-  registers.pc += 2;
+  registers.PC += 2;
   numCycles += 8;
 
 }
@@ -491,13 +538,13 @@ void DraconicState::LD_HLD_A()
 void DraconicState::LD_A_HLI()
 {
   registers.PC += 1;
-  numCycles += 2;
+  numCycles += 8;
 }
 
 void DraconicState::LD_A_HLD()
 {
   registers.PC += 1;
-  numCycles += 2;
+  numCycles += 8;
 }
 
 void DraconicState::CALL_N16(uint16_t addr)
@@ -506,31 +553,25 @@ void DraconicState::CALL_N16(uint16_t addr)
   numCycles += 12;
 }
 
-void DraconicState::CALLNZ_N16(uint8_t low, uint8_t high)
+void DraconicState::CALLNZ_N16(uint16_t addr)
 {
   registers.PC += 3;
   numCycles += 12;
 }
 
-void DraconicState::CALLZ_N16(uint8_t low, uint8_t high)
+void DraconicState::CALLZ_N16(uint16_t addr)
 {
   registers.PC += 3;
   numCycles += 12;
 }
 
-void DraconicState::CALLNC_N16(uint8_t low, uint8_t high)
+void DraconicState::CALLNC_N16(uint16_t addr)
 {
   registers.PC += 3;
   numCycles += 12;
 }
 
-void DraconicState::CALLC_N16(uint8_t low, uint8_t high)
-{
-  registers.PC += 3;
-  numCycles += 12;
-}
-
-void DraconicState::CALL_CC_N16(uint8_t cc, uint16_t addr)
+void DraconicState::CALLC_N16(uint16_t addr)
 {
   registers.PC += 3;
   numCycles += 12;

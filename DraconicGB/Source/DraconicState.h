@@ -75,8 +75,12 @@ public:
   // Functions
   void SetFlag(int flag, bool value);
   void ParseOpcode(uint8_t opCode);
+  void ParseOpcodeDeprecated(uint8_t opCode);
   void ParseBitOperation(uint8_t op);
-public:
+  void SetCPU(class CPU* _DraconicCPU);
+  CPU* DraconicCPU;
+
+private:
 
   // 8-bit Arithmetic and Logic Instructions -----------------------------------
 
@@ -132,14 +136,14 @@ public:
 
   // Bit Operations Instructions ---------------------------------------
 
-  void BIT_U3_R8(uint8_t value);
-  void BIT_U3_HL();
+  void BIT_U3_R8(uint8_t value, uint8_t bit);
+  void BIT_U3_HL(uint8_t bit);
 
-  void RES_U3_R8(uint8_t value);
-  void RES_U3_HL();
+  void RES_U3_R8(uint8_t& target, uint8_t value);
+  void RES_U3_HL(uint8_t value);
 
-  void SET_U3_R8(uint8_t value);
-  void SET_U3_HL();
+  void SET_U3_R8(uint8_t& target, uint8_t value);
+  void SET_U3_HL(uint8_t value);
 
   void SWAP_R8(uint8_t& target);
   void SWAP_HL();
@@ -203,10 +207,10 @@ public:
   // Jumps and Subroutines ---------------------------------------
 
   void CALL_N16(uint16_t addr);
-  void CALLNZ_N16(uint8_t low, uint8_t high);
-  void CALLZ_N16(uint8_t low, uint8_t high);
-  void CALLNC_N16(uint8_t low, uint8_t high);
-  void CALLC_N16(uint8_t low, uint8_t high);
+  void CALLNZ_N16(uint16_t addr);
+  void CALLZ_N16(uint16_t addr);
+  void CALLNC_N16(uint16_t addr);
+  void CALLC_N16(uint16_t addr);
 
   
 
@@ -234,6 +238,7 @@ public:
   void RETZ();
   void RETNC();
   void RETC();
+  void RET_CC(uint8_t cc);
   void RST_VEC(uint8_t vec);
 
 

@@ -167,6 +167,7 @@ int DraconicEmulator::Init()
   // Init the emulator hardware
   DraconicCPU.Init(&state);
   gpu.Init(&state, window, renderer);
+  state.SetCPU(&DraconicCPU);
 
   return 0;
 }
@@ -209,8 +210,12 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
     {
       // Get the next opcode to execute
       unsigned char opCode = state.memory.Read(state.registers.PC);
+
+
       // Run the opcode on the CPU
-      DraconicCPU.parse_opcode(opCode);
+      state.ParseOpcodeDeprecated(opCode);
+      //state.ParseOpcode(opCode);
+      //DraconicCPU.parse_opcode(opCode);
       //DraconicCPU.ParseOpCode(opCode);
       // Increment the cycleCount base on the number of cycles elapsed on the cpu
       currentCycle += state.numCycles;
