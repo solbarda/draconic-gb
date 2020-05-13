@@ -202,4 +202,53 @@ public:
 
   // Jumps and Subroutines ---------------------------------------
 
+  void CALL_N16(uint16_t addr);
+  void CALL_CC_N16(uint8_t cc, uint16_t addr);
+
+  void JP_HL();
+  void JP_N16(uint16_t addr);
+  void JP_CC_N16(uint8_t cc, uint16_t addr);
+  
+  void JR_E8(uint8_t offset);
+  void JR_CC_E8(uint8_t cc, uint8_t offset);
+
+  void RET_CC(uint8_t cc);
+  void RET();
+  void RETI();
+  void RST_VEC(uint8_t vec);
+
+
+  // Stack Operations Instructions ---------------------------------------
+
+  void ADD_HL_SP();
+  void ADD_SP_E8(uint8_t offset);
+
+  void DEC_SP();
+  
+  void LD_SP_N16(uint16_t value);
+  void LD_N16_SP(uint16_t addr);
+  void LD_HL_SP_E8(uint8_t offset);
+  void LD_SP_HL();
+  
+  void POP_AF();
+  void POP_R16(uint16_t value);
+
+  void PUSH_AF();
+  void PUSH_r16(uint16_t value);
+
+
+  // Miscellaneous Instructions ---------------------------------------
+
+  void CCF();
+  void CPL();
+  void DAA();
+  void DI();
+  void EI();
+  void HALT();
+  void NOP();
+  void SCF();
+  void STOP();
+
+
+
 };

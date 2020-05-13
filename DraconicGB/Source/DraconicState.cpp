@@ -462,3 +462,158 @@ void DraconicState::LD_A_HLD()
 {
 
 }
+
+void DraconicState::CALL_N16(uint16_t addr)
+{
+
+}
+
+void DraconicState::CALL_CC_N16(uint8_t cc, uint16_t addr)
+{
+
+}
+
+void DraconicState::JP_HL()
+{
+
+}
+
+void DraconicState::JP_N16(uint16_t addr)
+{
+
+}
+
+void DraconicState::JP_CC_N16(uint8_t cc, uint16_t addr)
+{
+
+}
+
+void DraconicState::JR_E8(uint8_t offset)
+{
+
+}
+
+void DraconicState::JR_CC_E8(uint8_t cc, uint8_t offset)
+{
+
+}
+
+void DraconicState::RET_CC(uint8_t cc)
+{
+
+}
+
+void DraconicState::RET()
+{
+
+}
+
+void DraconicState::RETI()
+{
+
+}
+
+void DraconicState::RST_VEC(uint8_t vec)
+{
+
+}
+
+void DraconicState::ADD_HL_SP()
+{
+
+}
+
+void DraconicState::ADD_SP_E8(uint8_t offset)
+{
+
+}
+
+void DraconicState::DEC_SP()
+{
+
+}
+
+void DraconicState::LD_SP_N16(uint16_t value)
+{
+
+}
+
+void DraconicState::LD_N16_SP(uint16_t addr)
+{
+
+}
+
+void DraconicState::LD_HL_SP_E8(uint8_t offset)
+{
+
+}
+
+void DraconicState::LD_SP_HL()
+{
+
+}
+
+void DraconicState::POP_AF()
+{
+
+}
+
+void DraconicState::POP_R16(uint16_t value)
+{
+
+}
+
+void DraconicState::PUSH_AF()
+{
+
+}
+
+void DraconicState::PUSH_r16(uint16_t value)
+{
+
+}
+
+void DraconicState::CCF()
+{
+
+}
+
+void DraconicState::CPL()
+{
+
+}
+
+void DraconicState::DAA()
+{
+
+}
+
+void DraconicState::DI()
+{
+
+}
+
+void DraconicState::EI()
+{
+
+}
+
+void DraconicState::HALT()
+{
+
+}
+
+void DraconicState::NOP()
+{
+
+}
+
+void DraconicState::SCF()
+{
+
+}
+
+void DraconicState::STOP()
+{
+
+}
