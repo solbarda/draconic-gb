@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DraconicEmulator.cpp" />
+    <ClCompile Include="Source\DraconicState.cpp" />
     <ClCompile Include="Source\Hardware\CPU.cpp" />
     <ClCompile Include="Source\Hardware\DraconicCartridge.cpp" />
     <ClCompile Include="Source\Hardware\DraconicGPU.cpp" />

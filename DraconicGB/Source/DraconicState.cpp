@@ -1,4 +1,5 @@
 #include "DraconicState.h"
+#include "Utils.h"
 
 void DraconicState::SetFlag(int flag, bool value)
 {
@@ -119,7 +120,7 @@ void DraconicState::AND_A_R8(uint8_t value)
 void DraconicState::AND_A_HL()
 {
   uint8_t val = memory.Read(registers.HL);
-  AND(target, val);
+  AND(registers.A, val);
 }
 
 void DraconicState::AND_A_N8(uint8_t value)
@@ -143,6 +144,231 @@ void DraconicState::CP_A_HL()
 }
 
 void DraconicState::CP_A_N8(uint8_t value)
+{
+
+}
+
+void DraconicState::DEC_R8(uint8_t& target)
+{
+
+}
+
+void DraconicState::DEC_HL()
+{
+
+}
+
+void DraconicState::INC_R8(uint8_t& target)
+{
+
+}
+
+void DraconicState::INC_HL()
+{
+
+}
+
+void DraconicState::OR_A_R8(uint8_t value)
+{
+
+}
+
+void DraconicState::OR_A_HL()
+{
+
+}
+
+void DraconicState::OR_A_N8(uint8_t value)
+{
+
+}
+
+void DraconicState::SBC_A_R8(uint8_t value)
+{
+
+}
+
+void DraconicState::SBC_A_HL()
+{
+
+}
+
+void DraconicState::SBC_A_N8(uint8_t value)
+{
+
+}
+
+void DraconicState::SUB_A_R8(uint8_t value)
+{
+
+}
+
+void DraconicState::SUB_A_HL()
+{
+
+}
+
+void DraconicState::SUB_A_N8(uint8_t value)
+{
+
+}
+
+void DraconicState::XOR_A_R8(uint8_t value)
+{
+
+}
+
+void DraconicState::XOR_A_HL()
+{
+
+}
+
+void DraconicState::XOR_A_N8(uint8_t value)
+{
+
+}
+
+void DraconicState::ADD_HL_R16(uint16_t value)
+{
+
+}
+
+void DraconicState::DEC_R16(uint16_t& target)
+{
+
+}
+
+void DraconicState::INC_R16(uint16_t& target)
+{
+
+}
+
+void DraconicState::BIT_U3_R8(uint8_t value)
+{
+
+}
+
+void DraconicState::BIT_U3_HL()
+{
+
+}
+
+void DraconicState::RES_U3_R8(uint8_t value)
+{
+
+}
+
+void DraconicState::RES_U3_HL()
+{
+
+}
+
+void DraconicState::SET_U3_R8(uint8_t value)
+{
+
+}
+
+void DraconicState::SET_U3_HL()
+{
+
+}
+
+void DraconicState::SWAP_R8(uint8_t& target)
+{
+
+}
+
+void DraconicState::SWAP_HL()
+{
+
+}
+
+void DraconicState::RL_R8(uint8_t& target)
+{
+
+}
+
+void DraconicState::RL_HL()
+{
+
+}
+
+void DraconicState::RLA()
+{
+
+}
+
+void DraconicState::RLC_R8(uint8_t& target)
+{
+
+}
+
+void DraconicState::RLC_HL()
+{
+
+}
+
+void DraconicState::RLCA()
+{
+
+}
+
+void DraconicState::RR_R8(uint8_t& target)
+{
+
+}
+
+void DraconicState::RR_HL()
+{
+
+}
+
+void DraconicState::RR_A()
+{
+
+}
+
+void DraconicState::RRC_R8(uint8_t& target)
+{
+
+}
+
+void DraconicState::RRC_HL()
+{
+
+}
+
+void DraconicState::RRC_A()
+{
+
+}
+
+void DraconicState::SLA_R8(uint8_t& target)
+{
+
+}
+
+void DraconicState::SLA_HL()
+{
+
+}
+
+void DraconicState::SRA_R8(uint8_t& target)
+{
+
+}
+
+void DraconicState::SRA_HL()
+{
+
+}
+
+void DraconicState::SRL_R8(uint8_t& target)
+{
+
+}
+
+void DraconicState::SRL_HL()
 {
 
 }

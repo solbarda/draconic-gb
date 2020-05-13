@@ -24,7 +24,7 @@ void DraconicEmulator::LoadROMAndStart(std::string romPath)
 
 int DraconicEmulator::Start()
 {
-  TestOpcodes();
+  //TestOpcodes();
   // Init the window, context and hardware
   Init();
   // Load a startup ROM
@@ -213,15 +213,15 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
       DraconicCPU.parse_opcode(opCode);
       //DraconicCPU.ParseOpCode(opCode);
       // Increment the cycleCount base on the number of cycles elapsed on the cpu
-      currentCycle += DraconicCPU.numCycles;
+      currentCycle += state.numCycles;
       // Update the CPU Timers based on the cycles
-      update_timers(DraconicCPU.numCycles);
+      update_timers(state.numCycles);
       // Update the scanlines
-      update_scanline(DraconicCPU.numCycles);
+      update_scanline(state.numCycles);
       //Perform the interrupts
       do_interrupts();
       // Reset the cpu current cycles
-      DraconicCPU.numCycles = 0;
+      state.numCycles = 0;
     }
     // Once we have finished we reset the current cycle count to 0 and
     // subtract the elasepd time from our accumulated time

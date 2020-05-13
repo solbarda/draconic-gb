@@ -77,7 +77,8 @@ public:
   void ParseOpcode(uint8_t opCode);
 
 public:
-  // 8-bit Arithmetic and Logic Instructions
+
+  // 8-bit Arithmetic and Logic Instructions -----------------------------------
 
   void ADC(uint8_t& target, uint8_t value);
   void ADC_A_R8(uint8_t value);
@@ -98,5 +99,81 @@ public:
   void CP_A_R8(uint8_t value);
   void CP_A_HL();
   void CP_A_N8(uint8_t value);
+
+  void DEC_R8(uint8_t& target);
+  void DEC_HL();
+
+  void INC_R8(uint8_t& target);
+  void INC_HL();
+
+  void OR_A_R8(uint8_t value);
+  void OR_A_HL();
+  void OR_A_N8(uint8_t value);
+
+  void SBC_A_R8(uint8_t value);
+  void SBC_A_HL();
+  void SBC_A_N8(uint8_t value);
+
+  void SUB_A_R8(uint8_t value);
+  void SUB_A_HL();
+  void SUB_A_N8(uint8_t value);
+
+  void XOR_A_R8(uint8_t value);
+  void XOR_A_HL();
+  void XOR_A_N8(uint8_t value);
+
+
+  // 16-bit Arithmetic Instructions ---------------------------------------
+
+  void ADD_HL_R16(uint16_t value);
+  void DEC_R16(uint16_t& target);
+  void INC_R16(uint16_t& target);
+
+
+  // Bit Operations Instructions ---------------------------------------
+
+  void BIT_U3_R8(uint8_t value);
+  void BIT_U3_HL();
+
+  void RES_U3_R8(uint8_t value);
+  void RES_U3_HL();
+
+  void SET_U3_R8(uint8_t value);
+  void SET_U3_HL();
+
+  void SWAP_R8(uint8_t& target);
+  void SWAP_HL();
+
+
+  // Bit Shift Instructions ---------------------------------------
+
+  void RL_R8(uint8_t& target);
+  void RL_HL();
+  void RLA();
+
+  void RLC_R8(uint8_t& target);
+  void RLC_HL();
+  void RLCA();
+
+  void RR_R8(uint8_t& target);
+  void RR_HL();
+  void RR_A();
+
+  void RRC_R8(uint8_t& target);
+  void RRC_HL();
+  void RRC_A();
+
+  void SLA_R8(uint8_t& target);
+  void SLA_HL();
+
+  void SRA_R8(uint8_t& target);
+  void SRA_HL();
+
+  void SRL_R8(uint8_t& target);
+  void SRL_HL();
+
+
+  // Load Instructions ---------------------------------------
+
 
 };
