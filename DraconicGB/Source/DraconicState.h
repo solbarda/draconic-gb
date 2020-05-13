@@ -181,17 +181,17 @@ public:
   void LD_HL_R8(uint8_t value);
   void LD_HL_N8(uint8_t value);
   void LD_R8_HL(uint8_t& target);
-  void LD_r16_A(uint16_t addr);
-  void LD_n16_A(uint16_t addr);
+  void LD_R16_A(uint16_t addr);
+  void LD_N16_A(uint16_t addr);
 
-  void LDH_n16_A(uint16_t addr);
-  void LDH_C_A(uint16_t C);
+  void LDH_N16_A(uint16_t addr);
+  void LDH_C_A();
 
   void LD_A_R16(uint16_t addr);
   void LD_A_N16(uint16_t addr);
 
   void LDH_A_N16(uint16_t addr);
-  void LDH_A_C(uint16_t C);
+  void LDH_A_C();
 
   void LD_HLI_A();
   void LD_HLD_A();
@@ -231,10 +231,10 @@ public:
   void LD_SP_HL();
   
   void POP_AF();
-  void POP_R16(uint16_t value);
+  void POP_R16(uint16_t& value);
 
   void PUSH_AF();
-  void PUSH_r16(uint16_t value);
+  void PUSH_R16(uint16_t value);
 
 
   // Miscellaneous Instructions ---------------------------------------
