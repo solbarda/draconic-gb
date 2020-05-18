@@ -68,6 +68,9 @@ private:
 
 
   void OnKeyPressed(SDL_KeyboardEvent key);
+
+  void ProcessInputData(SDL_KeyboardEvent& key, bool bPressed);
+
   void OnKeyReleased(SDL_KeyboardEvent key);
   int GetKeyID(SDL_Keysym key);
 

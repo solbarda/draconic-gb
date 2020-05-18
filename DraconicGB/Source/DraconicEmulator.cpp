@@ -488,69 +488,48 @@ void DraconicEmulator::DebugRender()
 }
 
 
-void DraconicEmulator::OnKeyPressed(SDL_KeyboardEvent key)
+void DraconicEmulator::ProcessInputData(SDL_KeyboardEvent& key, bool bPressed)
 {
-  if (key.keysym.sym == SDLK_SPACE)
-  {
-    state.CLOCK_SPEED *= 100;
-    return;
-  }
-
+  // Get key if
   int key_id = GetKeyID(key.keysym);
 
+  // If id is invalid return
   if (key_id < 0)
     return;
 
+  // Check to see if we are pressing a directional key
   bool directional = false;
-
-  if (key.keysym.sym == SDLK_UP || key.keysym.sym == SDLK_DOWN || key.keysym.sym == SDLK_LEFT|| key.keysym.sym == SDLK_RIGHT)
-  {
-    directional = true;
-  }
-
-  uint8_t joypad = (directional) ? state.memory.joypad_arrows : state.memory.joypad_buttons;
-  bool unpressed = is_bit_set(joypad, key_id);
-
-  if (!unpressed)
-    return;
-
-  if (directional)
-    state.memory.joypad_arrows = clear_bit(joypad, key_id);
-  else
-    state.memory.joypad_buttons = clear_bit(joypad, key_id);
-
-  RequestInterrupt(INTERRUPT_JOYPAD);
-}
-
-void DraconicEmulator::OnKeyReleased(SDL_KeyboardEvent key)
-{
-  if (key.keysym.sym == SDLK_SPACE)
-  {
-    state.CLOCK_SPEED /= 100;
-  }
-
-  int key_id = GetKeyID(key.keysym);
-
-  if (key_id < 0)
-    return;
-
-  bool directional = false;
-
   if (key.keysym.sym == SDLK_UP || key.keysym.sym == SDLK_DOWN || key.keysym.sym == SDLK_LEFT || key.keysym.sym == SDLK_RIGHT)
   {
     directional = true;
   }
 
+  // Set joypad variable to different value depending if directional key or not
   uint8_t joypad = (directional) ? state.memory.joypad_arrows : state.memory.joypad_buttons;
   bool unpressed = is_bit_set(joypad, key_id);
 
-  if (unpressed)
+  // If key is already pressed return
+  if ((bPressed && !unpressed) || (!bPressed && unpressed))
     return;
 
+  // Set the corresponding bits
   if (directional)
-    state.memory.joypad_arrows = set_bit(joypad, key_id);
+    state.memory.joypad_arrows = bPressed ? clear_bit(joypad, key_id) : set_bit(joypad, key_id);
   else
-    state.memory.joypad_buttons = set_bit(joypad, key_id);
+    state.memory.joypad_buttons = bPressed ? clear_bit(joypad, key_id) : set_bit(joypad, key_id);
+  
+  // Request a joypad interrupt
+  RequestInterrupt(INTERRUPT_JOYPAD);
+}
+
+void DraconicEmulator::OnKeyPressed(SDL_KeyboardEvent key)
+{
+  ProcessInputData(key, true);
+}
+
+void DraconicEmulator::OnKeyReleased(SDL_KeyboardEvent key)
+{
+  ProcessInputData(key, false);
 }
 
 int DraconicEmulator::GetKeyID(SDL_Keysym key)
