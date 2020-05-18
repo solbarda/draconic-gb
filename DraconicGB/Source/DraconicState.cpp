@@ -264,6 +264,36 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
 
 
 
+
+
+    // 109
+  case 0xC7:
+  case 0xCF:
+  case 0xD7:
+  case 0xDF:
+  case 0xE7:
+  case 0xEF:
+  case 0xF7:
+  case 0xFF:
+    // 110-111
+  case 0x27:
+  case 0x2F:
+  case 0x00:
+
+    // GBCPUMAN
+  case 0xF3:
+  case 0xFB:
+    // 112
+  case 0x76:
+    // case 
+
+    // Pandocs
+  case 0x37:
+  case 0x3F:
+
+
+
+
     ParseOpcode(opCode);
     return;
   default:
@@ -1011,7 +1041,7 @@ void DraconicState::JPNZ_N16(uint16_t target)
 {
   registers.PC += 3;
   numCycles += 12;
-  if ((registers.F & FLAG_ZERO) != 0)
+  if ((registers.F & FLAG_ZERO) == 0)
     JP(target);
 }
 
@@ -1173,10 +1203,15 @@ void DraconicState::RETC()
   }
 }
 
-void DraconicState::RST_VEC(uint8_t vec)
+void DraconicState::RST_VEC(uint16_t addr)
 {
   registers.PC += 1;
   numCycles += 16;
+  registers.SP--;
+  memory.Write(registers.SP, (registers.PC >> 8 & 0xFF));
+  registers.SP--;
+  memory.Write(registers.SP, (registers.PC & 0xFF));
+  registers.PC = addr;
 }
 
 void DraconicState::ADD_HL_SP()
@@ -1274,18 +1309,52 @@ void DraconicState::PUSH_R16(uint16_t value)
 
 void DraconicState::CCF()
 {
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_CARRY, ((registers.F & FLAG_CARRY) ? 1 : 0) ^ 1);
   registers.PC += 1;
   numCycles += 4;
 }
 
 void DraconicState::CPL()
 {
+  registers.A = ~registers.A;
+  SetFlag(FLAG_HALF_CARRY, true);
+  SetFlag(FLAG_SUB, true);
   registers.PC += 1;
   numCycles += 4;
 }
 
 void DraconicState::DAA()
 {
+  uint8_t high = registers.A >> 4 & 0xF;
+  uint8_t low = registers.A & 0xF;
+
+  bool add = ((registers.F & FLAG_SUB) == 0);
+  bool carry = ((registers.F & FLAG_CARRY) != 0);
+  bool half_carry = ((registers.F & FLAG_HALF_CARRY) != 0);
+
+  uint16_t result = (uint16_t)registers.A;
+  uint16_t correction = (carry) ? 0x60 : 0x00;
+
+  if (half_carry || (add) && ((result & 0x0F) > 9))
+    correction |= 0x06;
+
+  if (carry || (add) && (result > 0x99))
+    correction |= 0x60;
+
+  if (add)
+    result += correction;
+  else
+    result -= correction;
+
+  if (((correction << 2) & 0x100) != 0)
+    SetFlag(FLAG_CARRY, true);
+
+  SetFlag(FLAG_HALF_CARRY, false);
+  registers.A = (uint8_t)(result & 0xFF);
+  SetFlag(FLAG_ZERO, registers.A == 0);
+
   registers.PC += 1;
   numCycles += 4;
 }
@@ -1294,18 +1363,23 @@ void DraconicState::DI()
 {
   registers.PC += 1;
   numCycles += 4;
+  DraconicCPU->interrupt_master_enable = false;
+
 }
 
 void DraconicState::EI()
 {
   registers.PC += 1;
   numCycles += 4;
+  DraconicCPU->interrupt_master_enable = true;
 }
 
 void DraconicState::HALT()
 {
   registers.PC += 1;
   numCycles += 4;
+  DraconicCPU->halted = true;
+  registers.PC--;
 }
 
 void DraconicState::NOP()
@@ -1318,6 +1392,9 @@ void DraconicState::SCF()
 {
   registers.PC += 1;
   numCycles += 4;
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_CARRY, true);
 }
 
 void DraconicState::STOP()

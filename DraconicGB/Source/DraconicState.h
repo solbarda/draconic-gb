@@ -248,7 +248,7 @@ private:
   void RETC();
   void RET_CC(uint8_t cc);
   void RET_Impl();
-  void RST_VEC(uint8_t vec);
+  void RST_VEC(uint16_t addr);
 
 
   // Stack Operations Instructions ---------------------------------------
