@@ -212,6 +212,20 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0x25:
   case 0x2D:
   case 0x35:
+    // 97
+  case 0x09:
+  case 0x19:
+  case 0x29:
+  case 0x39:
+  case 0xE8:
+  case 0x03:
+  case 0x13:
+  case 0x23:
+  case 0x33:
+  case 0x0B:
+  case 0x1B:
+  case 0x2B:
+  case 0x3B:
  
     ParseOpcode(opCode);
     return;
@@ -543,18 +557,25 @@ void DraconicState::XOR_A_N8(uint8_t value)
 
 void DraconicState::ADD_HL_R16(uint16_t value)
 {
+  uint16_t result = registers.HL + value;
+  SetFlag(FLAG_SUB, false); // reset
+  SetFlag(FLAG_HALF_CARRY, ((((registers.HL & 0xFFF) + (value & 0xFFF)) & 0x1000) != 0)); // Set if carry from bit 11
+  SetFlag(FLAG_CARRY, (result > 0xFFFF)); // Set if carry from bit 15
+  registers.HL = result;
   registers.PC += 1;
   numCycles += 8;
 }
 
 void DraconicState::DEC_R16(uint16_t& target)
 {
+  target--;
   registers.PC += 1;
   numCycles += 8;
 }
 
 void DraconicState::INC_R16(uint16_t& target)
 {
+  target = target + 1;
   registers.PC += 1;
   numCycles += 8;
 }
@@ -1017,24 +1038,38 @@ void DraconicState::RST_VEC(uint8_t vec)
 
 void DraconicState::ADD_HL_SP()
 {
+  int result = registers.HL + registers.SP;
+  SetFlag(FLAG_SUB, false); // reset
+  SetFlag(FLAG_HALF_CARRY, ((((registers.HL & 0xFFF) + (registers.SP & 0xFFF)) & 0x1000) != 0)); // Set if carry from bit 11
+  SetFlag(FLAG_CARRY, (result > 0xFFFF)); // Set if carry from bit 15
+  registers.HL = result & 0xFFFF;
   registers.PC += 1;
   numCycles += 8;
 }
 
 void DraconicState::ADD_SP_E8(uint8_t offset)
 {
-  registers.PC += 1;
-  numCycles += 8;
+  int16_t val_signed = (int16_t)(int8_t)offset;
+  int result = (uint16_t)((int16_t)registers.SP + val_signed);
+  SetFlag(FLAG_CARRY, (result & 0xFF) < (registers.SP & 0xFF));
+  SetFlag(FLAG_HALF_CARRY, (result & 0xF) < (registers.SP & 0xF));
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_ZERO, false);
+  registers.SP = result & 0xFFFF;
+  registers.PC += 2;
+  numCycles += 16;
 }
 
 void DraconicState::DEC_SP()
 {
+  registers.SP--;
   registers.PC += 1;
   numCycles += 8;
 }
 
 void DraconicState::INC_SP()
 {
+  registers.SP++;
   registers.PC += 1;
   numCycles += 8;
 }
