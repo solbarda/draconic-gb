@@ -2,25 +2,7 @@
 #include "SDL_config.h"
 #include "SDL_syswm.h"
 #include "../ThirdParty/glad/include/glad/glad.h"
-
-struct PixelColor
-{
-  PixelColor() 
-  {
-
-  }
-  PixelColor(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
-  {
-    r = _r;
-    g = _g;
-    b = _b;
-    a = _a;
-  }
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-  uint8_t a;
-};
+#include "Utils.h"
 
 class DraconicGPU
 {
@@ -48,6 +30,8 @@ public:
   uint8_t* final_data;
 
   PixelColor shades_of_gray[4];
+
+  void SetColorPalette(PixelColor Darkest, PixelColor Dark, PixelColor Light, PixelColor Lightest);
 
 
 

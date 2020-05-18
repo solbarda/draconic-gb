@@ -46,3 +46,23 @@ bool between(unsigned char target, int low, int high);
 unsigned char set_bit(unsigned char data, unsigned char bit);
 unsigned char clear_bit(unsigned char data, unsigned char bit);
 bool is_bit_set(unsigned char data, unsigned char bit);
+
+
+struct PixelColor
+{
+  PixelColor()
+  {
+
+  }
+  PixelColor(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
+  {
+    r = _r;
+    g = _g;
+    b = _b;
+    a = _a;
+  }
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+  uint8_t a;
+};

@@ -1,61 +1,53 @@
 #pragma once
 
+// Draconic Emulator includes
 #include "Hardware/DraconicGPU.h"
 #include "Hardware/DraconicMemory.h"
 #include "Hardware/DraconicCPU.h"
-
-#include "./../ThirdParty/glad/include/glad/glad.h"
+#include "DraconicState.h"
+// OpenGL Context
+#include <glad/glad.h> 
+// Imgui
 #include "imgui.h"
 #include "examples/imgui_impl_sdl.h"
 #include "examples/imgui_impl_opengl3.h"
-#include <stdio.h>
+// SDL
 #include <SDL.h>
+// Standard libraries
+#include <stdio.h>
 #include <chrono>
 
-// About Desktop OpenGL function loaders:
-//  Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
-//  Helper libraries are often used for this purpose! Here we are supporting a few common ones (gl3w, glew, glad).
-//  You may use another loader/header of your choice (glext, glLoadGen, etc.), or chose to manually implement your own.
-#if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
-#include <GL/gl3w.h>    // Initialize with gl3wInit()
-#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
-#include <GL/glew.h>    // Initialize with glewInit()
-#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
-#include <glad/glad.h>  // Initialize with gladLoadGL()
-#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLBINDING)
-#include <glbinding/glbinding.h>  // Initialize with glbinding::initialize()
-#include <glbinding/gl/gl.h>
-using namespace gl;
-#else
-#include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
-#endif
-#include "DraconicState.h"
-
+// Main class that handles everything
 class DraconicEmulator
 {
-  
 public:
   DraconicCPU CPU;
   DraconicGPU GPU;
   DraconicState state;
 
+  // Load a ROM and start the emulation
   void LoadROMAndStart(std::string romPath);
+  // Function used to start the emulator initialization and main loop
   int Start();
+  // Destroy emulator and intantiated memory
   void Shutdown();
 
 private:
+  // Initialize emulator
   int Init();
+  // Application main loop, controls timing and rendering
   void  MainLoop();
-
+  // Emulator main loop, controls logic and memory
   void EmulatorMainLoop(float deltaTime);
-
+  // Draw debug windows
   void DebugRender();
 
+  // SDL Context
   struct SDL_Window* window;
   SDL_GLContext gl_context;
   SDL_Renderer* renderer;
 
-  // State
+  // Application state
   bool Finished = false;
   bool bEmulatorStarted = false;
   bool show_demo_window = true;
@@ -64,12 +56,8 @@ private:
   Uint64 PrevFrameTime;
   float DeltaTime;
   float framerate = 60;
-
   float accumTime = 0;
-
-
-
-
+  // Debug Display flags
   bool bDebugDisplayVRAM = true;
   bool bDebugDisplayOAM;
   bool bDebugDisplayWRAM;
@@ -79,39 +67,30 @@ private:
   bool bDebugDisplayGPU = true;
 
 
-  // -------- EVENTS ------- //
-  void handle_events();
+  void OnKeyPressed(SDL_KeyboardEvent key);
+  void OnKeyReleased(SDL_KeyboardEvent key);
+  int GetKeyID(SDL_Keysym key);
 
-  // -------- JOYPAD ------- //
-  void key_pressed(SDL_KeyboardEvent key);
-  void key_released(SDL_KeyboardEvent key);
-  int get_key_id(SDL_Keysym key);
+  void SaveState(int id);
+  void LoadState(int id);
 
-  // -------- SAVESTATES ------- //
-  void save_state(int id);
-  void load_state(int id);
-
-  // --------- DIVIDER --------- //
-  int divider_counter = 0;
+  int DividerCounter = 0;
   int divider_frequency = 16384; // 16384 Hz or every 256 CPU clock cycles
-  void update_divider(int cycles);
+  void UpdateDivider(int cycles);
 
-  // ----------TIMERS ---------- //
   int timer_counter = 0; // this may need to be set to some calculated non zero value
   uint8_t timer_frequency = 0;
-  void update_timers(int cycles);
-  bool timer_enabled();
-  uint8_t get_timer_frequency();
-  void set_timer_frequency();
+  void UpdateTimers(int cycles);
+  bool IsTimerEnabled();
+  uint8_t GetTimerFrequency();
+  void SetTimerFrequency();
 
-  // ------- INTERRUPTS ------- //
-  void request_interrupt(uint8_t id);
-  void do_interrupts();
-  void service_interrupt(uint8_t id);
+  void RequestInterrupt(uint8_t id);
+  void DoInterrupts();
+  void ServiceInterrupt(uint8_t id);
 
-  // ------ LCD Display ------ //
   int scanline_counter = 456; // Clock cycles per scanline draw
-  void set_lcd_status();
-  void update_scanline(int cycles);
+  void SetLCDStatus();
+  void UpdateScanline(int cycles);
 };
 

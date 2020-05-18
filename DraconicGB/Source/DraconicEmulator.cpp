@@ -13,9 +13,10 @@
 
 void DraconicEmulator::LoadROMAndStart(std::string romPath)
 {
+  // Reset memory and registers to default values
   state.memory.Reset();
   state.registers.Reset();
-  // First we load the ROM into memory
+  // Load the ROM into memory
   state.memory.LoadROM(romPath);
   // We set the bEmulatorStarted flag to true so the the CPU can perform its tasks
   bEmulatorStarted = true;
@@ -23,33 +24,21 @@ void DraconicEmulator::LoadROMAndStart(std::string romPath)
 
 int DraconicEmulator::Start()
 {
-  //TestOpcodes();
   // Init the window, context and hardware
   Init();
   // Load a startup ROM
-
   // Tests
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/01-special.gb");
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/02-interrupts.gb");
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/03-op sp,hl.gb");
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/04-op r,imm.gb");
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/05-op rp.gb");
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/06-ld r,r.gb");
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/07-jr,jp,call,ret,rst.gb"); // FAIL
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/08-misc instrs.gb");
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/09-op r,r.gb");
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/10-bit ops.gb");
-  //LoadROMAndStart("./ROM/CPU_instrs/individual/11-op a,(hl).gb");
-
-
-  //LoadROMAndStart("./ROM/mealybug-tearoom/m2_win_en_toggle.gb");
-  //LoadROMAndStart("./ROM/mealybug-tearoom/m3_bgp_change.gb");
-  //LoadROMAndStart("./ROM/LinkAwakening.gb");
-  //LoadROMAndStart("./ROM/Tetris (World) (Rev A).gb");
-  //LoadROMAndStart("./ROM/Tetris (Japan) (En).gb");
-  //LoadROMAndStart("./ROM/CPU_instrs.gb");
-  //LoadROMAndStart("./ROM/bgbtest.gb");
-  //LoadROMAndStart("./ROM/Kirby.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/01-special.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/02-interrupts.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/03-op sp,hl.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/04-op r,imm.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/05-op rp.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/06-ld r,r.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/07-jr,jp,call,ret,rst.gb"); // FAIL
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/08-misc instrs.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/09-op r,r.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/10-bit ops.gb");
+  //LoadROMAndStart("./ROM/cpu_instrs/individual/11-op a,(hl).gb");
   LoadROMAndStart("./ROM/2048.gb");
   
   // Start emulator main loop
@@ -147,22 +136,6 @@ int DraconicEmulator::Init()
   ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
   ImGui_ImplOpenGL3_Init(glsl_version);
 
-  // Load Fonts
-  // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-  // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-  // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-  // - Read 'docs/FONTS.txt' for more instructions and details.
-  // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-  //io.Fonts->AddFontDefault();
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-  //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-  //IM_ASSERT(font != NULL);
-
-
 
   // Init the emulator hardware
   CPU.Init(&state);
@@ -177,7 +150,6 @@ void DraconicEmulator::MainLoop()
   // Main loop, until the window is closed we will not exit from here
   while (!Finished)
   {
-    
     // Get time elapsed between frames
     static Uint64 frequency = SDL_GetPerformanceFrequency();
     Uint64 CurrentTime = SDL_GetPerformanceCounter();
@@ -210,18 +182,17 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
       // Get the next opcode to execute
       unsigned char opCode = state.memory.Read(state.registers.PC);
 
-
       // Run the opcode on the CPU
       CPU.ParseOpcode(opCode);
    
       // Increment the cycleCount base on the number of cycles elapsed on the CPU
       currentCycle += state.numCycles;
       // Update the CPU Timers based on the cycles
-      update_timers(state.numCycles);
+      UpdateTimers(state.numCycles);
       // Update the scanlines
-      update_scanline(state.numCycles);
+      UpdateScanline(state.numCycles);
       //Perform the interrupts
-      do_interrupts();
+      DoInterrupts();
       // Reset the CPU current cycles
       state.numCycles = 0;
     }
@@ -235,11 +206,6 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
 
 void DraconicEmulator::DebugRender()
 {
-  // Poll and handle events (inputs, window resize, etc.)
-   // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-   // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-   // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-   // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
   SDL_Event event;
   while (SDL_PollEvent(&event))
   {
@@ -249,11 +215,9 @@ void DraconicEmulator::DebugRender()
     if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
       Finished = true;
     if (event.type == SDL_KEYDOWN) 
-      key_pressed(event.key);
+      OnKeyPressed(event.key);
     if (event.type == SDL_KEYUP)
-      key_released(event.key);
-    
-    
+      OnKeyReleased(event.key);
   }
 
   // Start the Dear ImGui frame
@@ -261,7 +225,7 @@ void DraconicEmulator::DebugRender()
   ImGui_ImplSDL2_NewFrame(window);
   ImGui::NewFrame();
 
-
+  // Draw main menus
   if (ImGui::BeginMainMenuBar())
   {
     if (ImGui::BeginMenu("File"))
@@ -290,9 +254,9 @@ void DraconicEmulator::DebugRender()
       if (ImGui::BeginMenu("Open Preset Files"))
       {
         if (ImGui::MenuItem("CPU_instrs.gb"))
-          LoadROMAndStart("./ROM/CPU_instrs/CPU_instrs.gb");
+          LoadROMAndStart("./ROM/cpu_instrs/cpu_instrs.gb");
         if (ImGui::MenuItem("01-special.gb"))
-          LoadROMAndStart("./ROM/CPU_instrs/individual/01-special.gb");
+          LoadROMAndStart("./ROM/cpu_instrs/individual/01-special.gb");
         if (ImGui::MenuItem("Link.gb"))
           LoadROMAndStart("./ROM/Link.gb");
         if (ImGui::MenuItem("Kirby.gb"))
@@ -315,6 +279,72 @@ void DraconicEmulator::DebugRender()
         ImGui::EndMenu();
       }
       ImGui::Separator();
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Color Palette"))
+    {
+      /*ImGui::PushID(1);
+      ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(50 / 7.0f, 0.6f, 0.6f));
+      ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(200 / 7.0f, 0.6f, 0.6f));
+      ImGui::Button("Click");
+      ImGui::PopStyleColor(3);
+      ImGui::PopID();*/
+      static int currentPalette = 0;
+      if (ImGui::MenuItem("Palette A", currentPalette == 0 ? "Current" : "")) {
+        currentPalette = 0;
+        GPU.SetColorPalette(
+          PixelColor(90, 57, 33, 255),
+          PixelColor(107, 140, 66, 255),
+          PixelColor(123, 198, 123, 255),
+          PixelColor(255, 255, 181, 255)
+        );
+      }
+      if (ImGui::MenuItem("Palette B", currentPalette == 1 ? "Current" : "")) {
+        currentPalette = 1;
+        GPU.SetColorPalette(
+          PixelColor(51, 30, 80, 255),
+          PixelColor(166, 55, 37, 255),
+          PixelColor(214, 142, 73, 255),
+          PixelColor(253, 247, 231, 255)
+        );
+      }
+      if (ImGui::MenuItem("Palette C", currentPalette == 2 ? "Current" : "")) {
+        currentPalette = 2;
+        GPU.SetColorPalette(
+          PixelColor(0, 0, 0, 255),
+          PixelColor(127, 127, 127, 255),
+          PixelColor(198, 198, 198, 255),
+          PixelColor(255, 255, 255, 255)
+        );
+      }
+      if (ImGui::MenuItem("Palette D", currentPalette == 3 ? "Current" : "")) {
+        currentPalette = 3;
+        GPU.SetColorPalette(
+          PixelColor(16, 37, 51, 255),
+          PixelColor(66, 103, 142, 255),
+          PixelColor(111, 158, 223, 255),
+          PixelColor(206, 206, 206, 255)
+        );
+      }
+      if (ImGui::MenuItem("Palette E", currentPalette == 4 ? "Current" : "")) {
+        currentPalette = 4;
+        GPU.SetColorPalette(
+          PixelColor(124, 63, 88, 255),
+          PixelColor(235, 107, 111, 255),
+          PixelColor(249, 168, 117, 255),
+          PixelColor(255, 246, 211, 255)
+        );
+      }
+      if (ImGui::MenuItem("Palette F", currentPalette == 5 ? "Current" : "")) {
+        currentPalette = 5;
+        GPU.SetColorPalette(
+          PixelColor(45, 27, 0, 255),
+          PixelColor(30, 96, 110, 255),
+          PixelColor(90, 185, 168, 255),
+          PixelColor(196, 240, 194, 255)
+        );
+      }
+      
       ImGui::EndMenu();
     }
     //if (ImGui::BeginMenu("Edit"))
@@ -346,7 +376,7 @@ void DraconicEmulator::DebugRender()
     ImGui::EndMainMenuBar();
   }
 
-  // Stats
+  // Draw Stats
   {
     static float f = 0.0f;
     static int counter = 0;
@@ -379,7 +409,7 @@ void DraconicEmulator::DebugRender()
   }
 
 
-  // state.memory editor
+  // Draw memory editor
   {
     if (bDebugDisplayVRAM)
     {
@@ -425,6 +455,7 @@ void DraconicEmulator::DebugRender()
     }
   }
 
+  // Draw debug gpu frames
   if (bDebugDisplayGPU)
   {
     ImGui::Begin("GPU Debug",&bDebugDisplayGPU);
@@ -438,14 +469,14 @@ void DraconicEmulator::DebugRender()
   }
   
 
-
+  // Draw main emulator screen
   ImGui::Begin("GB Screen");
   ImGui::Image((void*)(intptr_t)GPU.final_texture, ImVec2(GPU.width*2, GPU.height*2), ImVec2(0.0f, 0.0f), ImVec2(1.0f, 1.0f));
   ImGui::End();
 
  
 
-  // Rendering
+  // Render everything
   ImGui::Render();
   ImGuiIO& io = ImGui::GetIO(); (void)io;
   glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
@@ -457,49 +488,15 @@ void DraconicEmulator::DebugRender()
 }
 
 
-// Hanlde window events and IO
-void DraconicEmulator::handle_events()
+void DraconicEmulator::OnKeyPressed(SDL_KeyboardEvent key)
 {
-  /*sf::Event event;
-
-  while (gpu.window.pollEvent(event))
-  {
-    switch (event.type)
-    {
-    case sf::Event::Closed:
-      gpu.window.close();
-      break;
-    case sf::Event::KeyPressed:
-      key_pressed(event.key.code);
-      break;
-    case sf::Event::KeyReleased:
-      key_released(event.key.code);
-      break;
-    }
-  }*/
-}
-
-void DraconicEmulator::key_pressed(SDL_KeyboardEvent key)
-{
-  
-  //// Function keys F1 thru F12
-  //if (key.keysym.sym >= 85 && key.keysym.sym <= 96)
-  //{
-  //  int id = key.keysym.sym - 84;
-  //  if (sf::Keyboard::isKeyPressed(Key::LShift))
-  //    save_state(id);
-  //  else
-  //    load_state(id);
-  //  return;
-  //}
-
   if (key.keysym.sym == SDLK_SPACE)
   {
     state.CLOCK_SPEED *= 100;
     return;
   }
 
-  int key_id = get_key_id(key.keysym);
+  int key_id = GetKeyID(key.keysym);
 
   if (key_id < 0)
     return;
@@ -522,17 +519,17 @@ void DraconicEmulator::key_pressed(SDL_KeyboardEvent key)
   else
     state.memory.joypad_buttons = clear_bit(joypad, key_id);
 
-  request_interrupt(INTERRUPT_JOYPAD);
+  RequestInterrupt(INTERRUPT_JOYPAD);
 }
 
-void DraconicEmulator::key_released(SDL_KeyboardEvent key)
+void DraconicEmulator::OnKeyReleased(SDL_KeyboardEvent key)
 {
   if (key.keysym.sym == SDLK_SPACE)
   {
     state.CLOCK_SPEED /= 100;
   }
 
-  int key_id = get_key_id(key.keysym);
+  int key_id = GetKeyID(key.keysym);
 
   if (key_id < 0)
     return;
@@ -556,7 +553,7 @@ void DraconicEmulator::key_released(SDL_KeyboardEvent key)
     state.memory.joypad_buttons = set_bit(joypad, key_id);
 }
 
-int DraconicEmulator::get_key_id(SDL_Keysym key)
+int DraconicEmulator::GetKeyID(SDL_Keysym key)
 {
   switch (key.sym)
   {
@@ -577,32 +574,32 @@ int DraconicEmulator::get_key_id(SDL_Keysym key)
   }
 }
 
-void DraconicEmulator::update_divider(int cycles)
+void DraconicEmulator::UpdateDivider(int cycles)
 {
-  divider_counter += cycles;
+  DividerCounter += cycles;
 
-  if (divider_counter >= 256) // 16384 Hz
+  if (DividerCounter >= 256) // 16384 Hz
   {
-    divider_counter = 0;
+    DividerCounter = 0;
     state.memory.DIV.set(state.memory.DIV.get() + 1);
   }
 }
 
 // Opcode cycle number may need adjusted, used Nintendo values
-void DraconicEmulator::update_timers(int cycles)
+void DraconicEmulator::UpdateTimers(int cycles)
 {
-  update_divider(cycles);
+  UpdateDivider(cycles);
 
   // This can be optimized if needed
-  uint8_t new_freq = get_timer_frequency();
+  uint8_t new_freq = GetTimerFrequency();
 
   if (timer_frequency != new_freq)
   {
-    set_timer_frequency();
+    SetTimerFrequency();
     timer_frequency = new_freq;
   }
 
-  if (timer_enabled())
+  if (IsTimerEnabled())
   {
     timer_counter -= cycles;
 
@@ -610,13 +607,13 @@ void DraconicEmulator::update_timers(int cycles)
     if (timer_counter <= 0)
     {
       uint8_t timer_value = state.memory.TIMA.get();
-      set_timer_frequency();
+      SetTimerFrequency();
 
       // Timer will overflow, generate interrupt
       if (timer_value == 255)
       {
         state.memory.TIMA.set(state.memory.TMA.get());
-        request_interrupt(INTERRUPT_TIMER);
+        RequestInterrupt(INTERRUPT_TIMER);
       }
       else
       {
@@ -626,19 +623,19 @@ void DraconicEmulator::update_timers(int cycles)
   }
 }
 
-bool DraconicEmulator::timer_enabled()
+bool DraconicEmulator::IsTimerEnabled()
 {
   return state.memory.TAC.is_bit_set(BIT_2);
 }
 
-uint8_t DraconicEmulator::get_timer_frequency()
+uint8_t DraconicEmulator::GetTimerFrequency()
 {
   return (state.memory.TAC.get() & 0x3);
 }
 
-void DraconicEmulator::set_timer_frequency()
+void DraconicEmulator::SetTimerFrequency()
 {
-  uint8_t frequency = get_timer_frequency();
+  uint8_t frequency = GetTimerFrequency();
   timer_frequency = frequency;
 
   switch (frequency)
@@ -651,12 +648,12 @@ void DraconicEmulator::set_timer_frequency()
   }
 }
 
-void DraconicEmulator::request_interrupt(uint8_t id)
+void DraconicEmulator::RequestInterrupt(uint8_t id)
 {
   state.memory.IF.set_bit(id);
 }
 
-void DraconicEmulator::do_interrupts()
+void DraconicEmulator::DoInterrupts()
 {
   // If there are any interrupts set
   if (state.memory.IF.get() > 0)
@@ -682,7 +679,7 @@ void DraconicEmulator::do_interrupts()
           // not all interrupt functionality 
           if (state.interrupt_master_enable)
           {
-            service_interrupt(i);
+            ServiceInterrupt(i);
           }
         }
       }
@@ -690,7 +687,7 @@ void DraconicEmulator::do_interrupts()
   }
 }
 
-void DraconicEmulator::service_interrupt(uint8_t id)
+void DraconicEmulator::ServiceInterrupt(uint8_t id)
 {
   state.interrupt_master_enable = false;
   state.memory.IF.clear_bit(id);
@@ -709,7 +706,7 @@ void DraconicEmulator::service_interrupt(uint8_t id)
   }
 }
 
-void DraconicEmulator::set_lcd_status()
+void DraconicEmulator::SetLCDStatus()
 {
   uint8_t status = state.memory.STAT.get();
 
@@ -771,7 +768,7 @@ void DraconicEmulator::set_lcd_status()
 
   // Entered new mode, request interrupt
   if (do_interrupt && (mode != current_mode))
-    request_interrupt(INTERRUPT_LCDC);
+    RequestInterrupt(INTERRUPT_LCDC);
 
   // check coincidence flag, set bit 2 if it matches
   if (state.memory.LY.get() == state.memory.LYC.get())
@@ -779,7 +776,7 @@ void DraconicEmulator::set_lcd_status()
     status = set_bit(status, BIT_2);
 
     if (is_bit_set(status, BIT_6))
-      request_interrupt(INTERRUPT_LCDC);
+      RequestInterrupt(INTERRUPT_LCDC);
   }
   // clear bit 2 if not
   else
@@ -789,11 +786,11 @@ void DraconicEmulator::set_lcd_status()
   state.memory.video_mode = mode;
 }
 
-void DraconicEmulator::update_scanline(int cycles)
+void DraconicEmulator::UpdateScanline(int cycles)
 {
   scanline_counter -= cycles;
 
-  set_lcd_status();
+  SetLCDStatus();
 
   if (state.memory.LY.get() > 153)
     state.memory.LY.clear();
@@ -810,7 +807,7 @@ void DraconicEmulator::update_scanline(int cycles)
     // Entered VBLANK period
     if (current_scanline == 144)
     {
-      request_interrupt(INTERRUPT_VBLANK);
+      RequestInterrupt(INTERRUPT_VBLANK);
       if (GPU.scanlines_rendered <= 144)
         GPU.render();
     }
@@ -820,7 +817,7 @@ void DraconicEmulator::update_scanline(int cycles)
   }
 }
 
-void DraconicEmulator::save_state(int id)
+void DraconicEmulator::SaveState(int id)
 {
   std::ofstream file;
   std::string filename = "./saves/" + state.memory.romName + "_" + std::to_string(id) + ".sav";
@@ -836,7 +833,7 @@ void DraconicEmulator::save_state(int id)
   }
 }
 
-void DraconicEmulator::load_state(int id)
+void DraconicEmulator::LoadState(int id)
 {
   std::string filename = "./saves/" + state.memory.romName + "_" + std::to_string(id) + ".sav";
   std::ifstream file(filename, std::ios::binary);

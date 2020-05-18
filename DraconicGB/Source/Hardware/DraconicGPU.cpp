@@ -6,22 +6,33 @@
 #include "SDL_render.h"
 #include "../ThirdParty/glad/include/glad/glad.h"
 
+void DraconicGPU::SetColorPalette(PixelColor Darkest, PixelColor Dark, PixelColor Light, PixelColor Lightest)
+{
+  shades_of_gray[0x0] = Lightest; // 0x0 - White
+  shades_of_gray[0x1] = Light; // 0x1 - Light Gray
+  shades_of_gray[0x2] = Dark; // 0x2 - Drak Gray
+  shades_of_gray[0x3] = Darkest;       // 0x3 - Black/**/
+}
+
 void DraconicGPU::Init(DraconicState* newState, SDL_Window* newWindow, SDL_Renderer* newRenderer)
 {
   state = newState;
   window = newWindow;
   renderer = newRenderer;
 
+ /* SetColorPalette(
+      PixelColor(0, 0, 0, 255),
+      PixelColor(127, 127, 127, 255),
+      PixelColor(198, 198, 198, 255),
+      PixelColor(255, 255, 255, 255)
+  );*/
 
-  //shades_of_gray[0x0] = PixelColor(255, 255, 255,255); // 0x0 - White
-  //shades_of_gray[0x1] = PixelColor(198, 198, 198, 255); // 0x1 - Light Gray
-  //shades_of_gray[0x2] = PixelColor(127, 127, 127, 255); // 0x2 - Drak Gray
-  //shades_of_gray[0x3] = PixelColor(0, 0, 0, 255);       // 0x3 - Black/**/
-
-  shades_of_gray[0x0] = PixelColor(255, 255, 181, 255); // 0x0 - White
-  shades_of_gray[0x1] = PixelColor(123, 198, 123, 255); // 0x1 - Light Gray
-  shades_of_gray[0x2] = PixelColor(107, 140, 66, 255); // 0x2 - Drak Gray
-  shades_of_gray[0x3] = PixelColor(90,57, 33, 255);       // 0x3 - Black/**/
+  SetColorPalette(
+    PixelColor(90, 57, 33, 255),
+    PixelColor(107, 140, 66, 255),
+    PixelColor(123, 198, 123, 255),
+    PixelColor(255, 255, 181, 255)
+  );
 
   bg_data = new unsigned char[160 * 144 * 4];
   window_data = new unsigned char[160 * 144 * 4];
