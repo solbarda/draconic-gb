@@ -9,6 +9,7 @@ void DraconicState::ParseOpcode(uint8_t opCode)
 
   switch (opCode)
   {
+    // 85
   case 0x7F: LD_R8_R8(registers.A, registers.A); break;
   case 0x78: LD_R8_R8(registers.A, registers.B); break;
   case 0x79: LD_R8_R8(registers.A, registers.C); break;

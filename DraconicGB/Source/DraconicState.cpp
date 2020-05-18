@@ -79,6 +79,21 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0x5E:
   case 0x66:
   case 0x6E:
+    // 86
+  case 0x77:
+  case 0x70:
+  case 0x71:
+  case 0x72:
+  case 0x73:
+  case 0x74:
+  case 0x75:
+  case 0x36:
+  case 0x0A:
+  case 0x1A:
+  case 0xF2:
+
+
+
     // 92
   case 0x87:
   case 0x80:
@@ -117,6 +132,7 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0x9D:
   case 0xDE:
   case 0x9E:
+ 
     ParseOpcode(opCode);
     return;
   default:
@@ -579,12 +595,14 @@ void DraconicState::LD_R16_N16(uint16_t& target, uint16_t value)
 
 void DraconicState::LD_HL_R8(uint8_t value)
 {
+  memory.Write(registers.HL, value);
   registers.PC += 1;
   numCycles += 8;
 }
 
 void DraconicState::LD_HL_N8(uint8_t value)
 {
+  memory.Write(registers.HL, value);
   registers.PC += 2;
   numCycles += 12;
 }
@@ -624,12 +642,14 @@ void DraconicState::LDH_C_A()
 
 void DraconicState::LD_A_R16(uint16_t addr)
 {
+  registers.A = memory.Read(addr);
   registers.PC += 1;
   numCycles += 8;
 }
 
 void DraconicState::LD_A_N16(uint16_t addr)
 {
+  registers.A = memory.Read(addr);
   registers.PC += 3;
   numCycles += 16;
 }

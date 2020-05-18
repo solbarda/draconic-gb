@@ -315,6 +315,7 @@ void DraconicEmulator::DebugRender()
           LoadROMAndStart("./ROM/airaki.gb");
         if (ImGui::MenuItem("2048.gb"))
           LoadROMAndStart("./ROM/2048.gb");
+        
         ImGui::EndMenu();
       }
       ImGui::Separator();
