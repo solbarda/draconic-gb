@@ -233,6 +233,19 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0x1F:
     //// 99 - 104
  // case 0xCB: parse_bit_op(value); break;
+    // 105
+  case 0xC3:
+  case 0xC2:
+  case 0xCA:
+  case 0xD2:
+  case 0xDA:
+    // 106
+  case 0x18:
+  case 0x20:
+  case 0x28:
+  case 0x30:
+  case 0x38:
+  case 0xE9:
     ParseOpcode(opCode);
     return;
   default:
@@ -937,6 +950,7 @@ void DraconicState::CALLC_N16(uint16_t addr)
 
 void DraconicState::JP(uint16_t target)
 {
+  registers.PC = target;
   numCycles += 4;
 }
 
@@ -944,6 +958,7 @@ void DraconicState::JP_HL()
 {
   registers.PC += 1;
   numCycles += 4;
+  registers.PC = registers.HL;
 }
 
 void DraconicState::JP_N16(uint16_t addr)
@@ -958,54 +973,78 @@ void DraconicState::JPNZ_N16(uint16_t target)
 {
   registers.PC += 3;
   numCycles += 12;
+  if ((registers.F & FLAG_ZERO) != 0)
+    JP(target);
 }
 
 void DraconicState::JPZ_N16(uint16_t target)
 {
   registers.PC += 3;
   numCycles += 12;
+  if ((registers.F & FLAG_ZERO) != 0)
+    JP(target);
 }
 
 void DraconicState::JPNC_N16(uint16_t target)
 {
   registers.PC += 3;
   numCycles += 12;
+  if ((registers.F & FLAG_CARRY) == 0)
+    JP(target);
 }
 
 void DraconicState::JPC_N16(uint16_t target)
 {
   registers.PC += 3;
   numCycles += 12;
+  if ((registers.F & FLAG_CARRY) != 0)
+    JP(target);
+}
+
+void DraconicState::JR(uint8_t value)
+{
+  int8_t signed_val = ((int8_t)(value));
+  registers.PC += signed_val;
+  numCycles += 4;
 }
 
 void DraconicState::JR_N8(uint8_t value)
 {
   registers.PC += 2;
   numCycles += 8;
+  JR(value);
 }
 
 void DraconicState::JRNZ_N8(uint8_t value)
 {
   registers.PC += 2;
   numCycles += 8;
+  if ((registers.F & FLAG_ZERO) == 0)
+    JR(value);
 }
 
 void DraconicState::JRZ_N8(uint8_t value)
 {
   registers.PC += 2;
   numCycles += 8;
+  if ((registers.F & FLAG_ZERO) != 0)
+    JR(value);
 }
 
 void DraconicState::JRNC_N8(uint8_t value)
 {
   registers.PC += 2;
   numCycles += 8;
+  if ((registers.F & FLAG_CARRY) == 0)
+    JR(value);
 }
 
 void DraconicState::JRC_N8(uint8_t value)
 {
   registers.PC += 2;
   numCycles += 8;
+  if ((registers.F & FLAG_CARRY) != 0)
+    JR(value);
 }
 
 void DraconicState::JP_CC_N16(uint8_t cc, uint16_t addr)

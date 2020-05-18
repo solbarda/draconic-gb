@@ -227,6 +227,7 @@ private:
   void JPZ_N16(uint16_t target);
   void JPNC_N16(uint16_t target);
   void JPC_N16(uint16_t target);
+  void JR(uint8_t value);
   void JR_N8(uint8_t value);
 
   void JRNZ_N8(uint8_t value);
