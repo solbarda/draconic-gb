@@ -247,6 +247,7 @@ private:
   void RETNC();
   void RETC();
   void RET_CC(uint8_t cc);
+  void RET_Impl();
   void RST_VEC(uint8_t vec);
 
 

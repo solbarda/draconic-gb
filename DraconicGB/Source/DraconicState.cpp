@@ -252,6 +252,18 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0xCC:
   case 0xD4:
   case 0xDC:
+    // 108
+  case 0xC9:
+  case 0xC0:
+  case 0xC8:
+  case 0xD0:
+  case 0xD8:
+  case 0xD9:
+
+
+
+
+
     ParseOpcode(opCode);
     return;
   default:
@@ -1093,40 +1105,72 @@ void DraconicState::RET_CC(uint8_t cc)
 
 }
 
+void DraconicState::RET_Impl()
+{
+  uint8_t low = memory.Read(registers.SP++);
+  uint8_t high = memory.Read(registers.SP++);
+  registers.PC = (high << 8 & 0xFF00) | (low & 0xFF);
+  numCycles += 12;
+}
+
+
 void DraconicState::RET()
 {
   registers.PC += 1;
   numCycles += 4;
+  RET_Impl();
 }
 
 void DraconicState::RETI()
 {
   registers.PC += 1;
   numCycles += 4;
+  DraconicCPU->interrupt_master_enable = true;
+  RET_Impl();
 }
 
 void DraconicState::RETNZ()
 {
   registers.PC += 1;
   numCycles += 8;
+  if ((registers.F & FLAG_ZERO) == 0)
+  {
+    RET_Impl();
+    numCycles += 8;
+  }
 }
 
 void DraconicState::RETZ()
 {
   registers.PC += 1;
   numCycles += 8;
+  if ((registers.F & FLAG_ZERO) != 0)
+  {
+    RET_Impl();
+    numCycles += 8;
+  }
 }
 
 void DraconicState::RETNC()
 {
   registers.PC += 1;
   numCycles += 8;
+  if ((registers.F & FLAG_CARRY) == 0)
+  {
+    RET_Impl();
+    numCycles += 8;
+  }
 }
 
 void DraconicState::RETC()
 {
   registers.PC += 1;
   numCycles += 8;
+  if ((registers.F & FLAG_CARRY) != 0)
+  {
+    RET_Impl();
+    numCycles += 8;
+  }
 }
 
 void DraconicState::RST_VEC(uint8_t vec)
