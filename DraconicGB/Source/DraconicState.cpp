@@ -226,7 +226,13 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0x1B:
   case 0x2B:
   case 0x3B:
- 
+    // 98
+  case 0x07:
+  case 0x17:
+  case 0x0F:
+  case 0x1F:
+    //// 99 - 104
+ // case 0xCB: parse_bit_op(value); break;
     ParseOpcode(opCode);
     return;
   default:
@@ -642,6 +648,7 @@ void DraconicState::RL_HL()
 
 void DraconicState::RLA()
 {
+  RL(registers.A, true);
   registers.PC += 1;
   numCycles += 4;
 }
@@ -658,8 +665,20 @@ void DraconicState::RLC_HL()
   numCycles += 16;
 }
 
+void DraconicState::RL(uint8_t& target, bool carry, bool zero_flag)
+{
+  int bit7 = ((target & 0x80) != 0);
+  target = target << 1;
+  target |= (carry) ? ((registers.F & FLAG_CARRY) != 0) : bit7;
+  SetFlag(FLAG_ZERO, ((zero_flag) ? (target == 0) : false));
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_CARRY, (bit7 != 0));
+}
+
 void DraconicState::RLCA()
 {
+  RL(registers.A, false);
   registers.PC += 1;
   numCycles += 4;
 }
@@ -678,6 +697,7 @@ void DraconicState::RR_HL()
 
 void DraconicState::RR_A()
 {
+  RR(registers.A, true);
   registers.PC += 1;
   numCycles += 4;
 }
@@ -694,8 +714,22 @@ void DraconicState::RRC_HL()
   numCycles += 16;
 }
 
+
+void DraconicState::RR(uint8_t& target, bool carry, bool zero_flag)
+{
+  int bit1 = ((target & 0x1) != 0);
+  target = target >> 1;
+
+  target |= (carry) ? (((registers.F & FLAG_CARRY) != 0) << 7) : (bit1 << 7);
+
+  SetFlag(FLAG_ZERO, ((zero_flag) ? (target == 0) : false));
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_CARRY, (bit1 != 0));
+}
 void DraconicState::RRC_A()
 {
+  RR(registers.A, false);
   registers.PC += 1;
   numCycles += 4;
 }

@@ -161,6 +161,7 @@ private:
 
   void RLC_R8(uint8_t& target);
   void RLC_HL();
+  void RL(uint8_t& target, bool carry, bool zero_flag = false);
   void RLCA();
 
   void RR_R8(uint8_t& target);
@@ -169,6 +170,7 @@ private:
 
   void RRC_R8(uint8_t& target);
   void RRC_HL();
+  void RR(uint8_t& target, bool carry, bool zero_flag = false);
   void RRC_A();
 
   void SLA_R8(uint8_t& target);
