@@ -66,9 +66,6 @@
     <ClCompile Include="Source\DraconicEmulator.cpp">
       <Filter>Source Files\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\CPU.cpp">
-      <Filter>Source Files\Source\Hardware</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Hardware\DraconicMemory.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
@@ -92,6 +89,9 @@
     </ClCompile>
     <ClCompile Include="Source\DraconicOpcodes.cpp">
       <Filter>Source Files\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\DraconicCPU.cpp">
+      <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -132,9 +132,6 @@
     <ClInclude Include="Source\DraconicEmulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Hardware\CPU.h">
-      <Filter>Header Files\Hardware</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Hardware\DraconicMemory.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>
@@ -161,6 +158,9 @@
     </ClInclude>
     <ClInclude Include="Source\DraconicOpcodes.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\DraconicCPU.h">
+      <Filter>Header Files\Hardware</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
