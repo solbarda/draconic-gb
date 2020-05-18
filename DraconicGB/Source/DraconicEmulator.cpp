@@ -1,7 +1,6 @@
 #include "DraconicEmulator.h"
 #include <iostream>
 #include "SDL_config.h"
-#include "Hardware/CPU.h"
 #include "../ThirdParty/imgui/imgui_memory_editor.h"
 #include "DraconicState.h"
 #include "Utils.h"
@@ -30,17 +29,17 @@ int DraconicEmulator::Start()
   // Load a startup ROM
 
   // Tests
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/01-special.gb");
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/02-interrupts.gb");
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/03-op sp,hl.gb");
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/04-op r,imm.gb");
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/05-op rp.gb");
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/06-ld r,r.gb");
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/07-jr,jp,call,ret,rst.gb"); // FAIL
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/08-misc instrs.gb");
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/09-op r,r.gb");
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/10-bit ops.gb");
-  //LoadROMAndStart("./ROM/cpu_instrs/individual/11-op a,(hl).gb");
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/01-special.gb");
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/02-interrupts.gb");
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/03-op sp,hl.gb");
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/04-op r,imm.gb");
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/05-op rp.gb");
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/06-ld r,r.gb");
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/07-jr,jp,call,ret,rst.gb"); // FAIL
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/08-misc instrs.gb");
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/09-op r,r.gb");
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/10-bit ops.gb");
+  //LoadROMAndStart("./ROM/CPU_instrs/individual/11-op a,(hl).gb");
 
 
   //LoadROMAndStart("./ROM/mealybug-tearoom/m2_win_en_toggle.gb");
@@ -48,7 +47,7 @@ int DraconicEmulator::Start()
   //LoadROMAndStart("./ROM/LinkAwakening.gb");
   //LoadROMAndStart("./ROM/Tetris (World) (Rev A).gb");
   //LoadROMAndStart("./ROM/Tetris (Japan) (En).gb");
-  //LoadROMAndStart("./ROM/cpu_instrs.gb");
+  //LoadROMAndStart("./ROM/CPU_instrs.gb");
   //LoadROMAndStart("./ROM/bgbtest.gb");
   //LoadROMAndStart("./ROM/Kirby.gb");
   LoadROMAndStart("./ROM/2048.gb");
@@ -166,9 +165,8 @@ int DraconicEmulator::Init()
 
 
   // Init the emulator hardware
-  DraconicCPU.Init(&state);
-  gpu.Init(&state, window, renderer);
-  state.SetCPU(&DraconicCPU);
+  CPU.Init(&state);
+  GPU.Init(&state, window, renderer);
 
   return 0;
 }
@@ -205,7 +203,7 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
   if (accumTime >= timeBetweenFrames)
   {
     // We will need to perform as many cycles as our current framerate needs us to do
-    float cyclesPerFrame = DraconicCPU.CLOCK_SPEED / framerate;
+    float cyclesPerFrame = state.CLOCK_SPEED / framerate;
     int currentCycle = 0;
     while (currentCycle < cyclesPerFrame)
     {
@@ -214,11 +212,9 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
 
 
       // Run the opcode on the CPU
-      state.ParseOpcodeDeprecated(opCode);
-      //state.ParseOpcode(opCode);
-      //DraconicCPU.parse_opcode(opCode);
-      //DraconicCPU.ParseOpCode(opCode);
-      // Increment the cycleCount base on the number of cycles elapsed on the cpu
+      CPU.ParseOpcode(opCode);
+   
+      // Increment the cycleCount base on the number of cycles elapsed on the CPU
       currentCycle += state.numCycles;
       // Update the CPU Timers based on the cycles
       update_timers(state.numCycles);
@@ -226,14 +222,14 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
       update_scanline(state.numCycles);
       //Perform the interrupts
       do_interrupts();
-      // Reset the cpu current cycles
+      // Reset the CPU current cycles
       state.numCycles = 0;
     }
     // Once we have finished we reset the current cycle count to 0 and
     // subtract the elasepd time from our accumulated time
     currentCycle = 0;
     accumTime -= timeBetweenFrames;
-    gpu.scanlines_rendered = 0;
+    GPU.scanlines_rendered = 0;
   }
 }
 
@@ -293,10 +289,10 @@ void DraconicEmulator::DebugRender()
       }
       if (ImGui::BeginMenu("Open Preset Files"))
       {
-        if (ImGui::MenuItem("cpu_instrs.gb"))
-          LoadROMAndStart("./ROM/cpu_instrs/cpu_instrs.gb");
+        if (ImGui::MenuItem("CPU_instrs.gb"))
+          LoadROMAndStart("./ROM/CPU_instrs/CPU_instrs.gb");
         if (ImGui::MenuItem("01-special.gb"))
-          LoadROMAndStart("./ROM/cpu_instrs/individual/01-special.gb");
+          LoadROMAndStart("./ROM/CPU_instrs/individual/01-special.gb");
         if (ImGui::MenuItem("Link.gb"))
           LoadROMAndStart("./ROM/Link.gb");
         if (ImGui::MenuItem("Kirby.gb"))
@@ -433,18 +429,18 @@ void DraconicEmulator::DebugRender()
   {
     ImGui::Begin("GPU Debug",&bDebugDisplayGPU);
     ImGui::Text("Background");
-    ImGui::Image((void*)(intptr_t)gpu.bg_texture, ImVec2(gpu.width, gpu.height));
+    ImGui::Image((void*)(intptr_t)GPU.bg_texture, ImVec2(GPU.width, GPU.height));
     ImGui::Text("Window");
-    ImGui::Image((void*)(intptr_t)gpu.window_texture, ImVec2(gpu.width, gpu.height));
+    ImGui::Image((void*)(intptr_t)GPU.window_texture, ImVec2(GPU.width, GPU.height));
     ImGui::Text("Sprite");
-    ImGui::Image((void*)(intptr_t)gpu.sprites_texture, ImVec2(gpu.width, gpu.height));
+    ImGui::Image((void*)(intptr_t)GPU.sprites_texture, ImVec2(GPU.width, GPU.height));
     ImGui::End();
   }
   
 
 
   ImGui::Begin("GB Screen");
-  ImGui::Image((void*)(intptr_t)gpu.final_texture, ImVec2(gpu.width*2, gpu.height*2), ImVec2(0.0f, 0.0f), ImVec2(1.0f, 1.0f));
+  ImGui::Image((void*)(intptr_t)GPU.final_texture, ImVec2(GPU.width*2, GPU.height*2), ImVec2(0.0f, 0.0f), ImVec2(1.0f, 1.0f));
   ImGui::End();
 
  
@@ -499,7 +495,7 @@ void DraconicEmulator::key_pressed(SDL_KeyboardEvent key)
 
   if (key.keysym.sym == SDLK_SPACE)
   {
-    DraconicCPU.CLOCK_SPEED *= 100;
+    state.CLOCK_SPEED *= 100;
     return;
   }
 
@@ -533,7 +529,7 @@ void DraconicEmulator::key_released(SDL_KeyboardEvent key)
 {
   if (key.keysym.sym == SDLK_SPACE)
   {
-    DraconicCPU.CLOCK_SPEED /= 100;
+    state.CLOCK_SPEED /= 100;
   }
 
   int key_id = get_key_id(key.keysym);
@@ -610,7 +606,7 @@ void DraconicEmulator::update_timers(int cycles)
   {
     timer_counter -= cycles;
 
-    // enough cpu clock cycles have happened to update timer
+    // enough CPU clock cycles have happened to update timer
     if (timer_counter <= 0)
     {
       uint8_t timer_value = state.memory.TIMA.get();
@@ -665,13 +661,13 @@ void DraconicEmulator::do_interrupts()
   // If there are any interrupts set
   if (state.memory.IF.get() > 0)
   {
-    // Resume CPU state if halted and interrupts are pending
+    // Resume  CPU state if halted and interrupts are pending
     if (state.memory.IE.get() > 0)
     {
       
-      if (DraconicCPU.halted)
+      if (state.halted)
       {
-        DraconicCPU.halted = false;
+        state.halted = false;
         state.registers.PC += 1;
       }
     }
@@ -684,7 +680,7 @@ void DraconicEmulator::do_interrupts()
         {
           // IME only disables the servicing of interrupts,
           // not all interrupt functionality 
-          if (DraconicCPU.interrupt_master_enable)
+          if (state.interrupt_master_enable)
           {
             service_interrupt(i);
           }
@@ -696,7 +692,7 @@ void DraconicEmulator::do_interrupts()
 
 void DraconicEmulator::service_interrupt(uint8_t id)
 {
-  DraconicCPU.interrupt_master_enable = false;
+  state.interrupt_master_enable = false;
   state.memory.IF.clear_bit(id);
 
   // Push current execution address to stack
@@ -762,8 +758,8 @@ void DraconicEmulator::set_lcd_status()
       if (current_mode != mode)
       {
         // draw current scanline to screen
-        if (current_line < 144 && gpu.scanlines_rendered <= 144)
-          gpu.update_scanline(current_line);
+        if (current_line < 144 && GPU.scanlines_rendered <= 144)
+          GPU.update_scanline(current_line);
       }
 
       // 0 binary
@@ -815,8 +811,8 @@ void DraconicEmulator::update_scanline(int cycles)
     if (current_scanline == 144)
     {
       request_interrupt(INTERRUPT_VBLANK);
-      if (gpu.scanlines_rendered <= 144)
-        gpu.render();
+      if (GPU.scanlines_rendered <= 144)
+        GPU.render();
     }
     // Reset counter if past maximum
     else if (current_scanline > 153)
@@ -832,7 +828,7 @@ void DraconicEmulator::save_state(int id)
 
   if (!file.bad())
   {
-    DraconicCPU.save_state(file);
+    CPU.SaveState(file);
     state.memory.save_state(file);
     file.close();
 
@@ -847,7 +843,7 @@ void DraconicEmulator::load_state(int id)
 
   if (file.is_open())
   {
-    DraconicCPU.load_state(file);
+    CPU.LoadState(file);
     state.memory.load_state(file);
     file.close();
 

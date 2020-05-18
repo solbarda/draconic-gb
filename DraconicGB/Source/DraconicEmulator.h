@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Hardware/CPU.h"
 #include "Hardware/DraconicGPU.h"
 #include "Hardware/DraconicMemory.h"
+#include "Hardware/DraconicCPU.h"
 
 #include "./../ThirdParty/glad/include/glad/glad.h"
 #include "imgui.h"
@@ -35,8 +35,8 @@ class DraconicEmulator
 {
   
 public:
-  CPU DraconicCPU;
-  DraconicGPU gpu;
+  DraconicCPU CPU;
+  DraconicGPU GPU;
   DraconicState state;
 
   void LoadROMAndStart(std::string romPath);
