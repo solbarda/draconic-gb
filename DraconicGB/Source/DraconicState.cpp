@@ -186,6 +186,32 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0xAD:
   case 0xEE:
   case 0xAE:
+    // 95 - 96
+  case 0xBF:
+  case 0xB8:
+  case 0xB9:
+  case 0xBA:
+  case 0xBB:
+  case 0xBC:
+  case 0xBD:
+  case 0xFE:
+  case 0xBE:
+  case 0x3C:
+  case 0x04:
+  case 0x0C:
+  case 0x14:
+  case 0x1C:
+  case 0x24:
+  case 0x2C:
+  case 0x34:
+  case 0x3D:
+  case 0x05:
+  case 0x0D:
+  case 0x15:
+  case 0x1D:
+  case 0x25:
+  case 0x2D:
+  case 0x35:
  
     ParseOpcode(opCode);
     return;
@@ -304,42 +330,80 @@ void DraconicState::CP(uint8_t& target, uint8_t value8Low)
 
 void DraconicState::CP_A_R8(uint8_t value)
 {
+  int result = registers.A - value;
+  SetFlag(FLAG_ZERO, (result == 0));
+  SetFlag(FLAG_SUB, true);
+  SetFlag(FLAG_HALF_CARRY, (((registers.A & 0xF) - (value & 0xF)) < 0));
+  SetFlag(FLAG_CARRY, (result < 0));
   registers.PC += 1;
   numCycles += 4;
 }
 
 void DraconicState::CP_A_HL()
 {
+  uint8_t value = memory.Read(registers.HL);
+  int result = registers.A - value;
+  SetFlag(FLAG_ZERO, (result == 0));
+  SetFlag(FLAG_SUB, true);
+  SetFlag(FLAG_HALF_CARRY, (((registers.A & 0xF) - (value & 0xF)) < 0));
+  SetFlag(FLAG_CARRY, (result < 0));
   registers.PC += 1;
   numCycles += 8;
 }
 
 void DraconicState::CP_A_N8(uint8_t value)
 {
+  int result = registers.A - value;
+  SetFlag(FLAG_ZERO, (result == 0));
+  SetFlag(FLAG_SUB, true);
+  SetFlag(FLAG_HALF_CARRY, (((registers.A & 0xF) - (value & 0xF)) < 0));
+  SetFlag(FLAG_CARRY, (result < 0));
   registers.PC += 2;
   numCycles += 8;
 }
 
 void DraconicState::DEC_R8(uint8_t& target)
 {
+  uint8_t result = target - 1;
+  SetFlag(FLAG_ZERO, (result == 0));
+  SetFlag(FLAG_SUB, true);
+  SetFlag(FLAG_HALF_CARRY, (((target & 0xF) - 1) < 0));
+  target = result;
   registers.PC += 1;
   numCycles += 4;
 }
 
 void DraconicState::DEC_HL()
 {
+  uint8_t value = memory.Read(registers.HL);
+  uint8_t result = value - 1;
+  SetFlag(FLAG_ZERO, (result == 0));
+  SetFlag(FLAG_SUB, true);
+  SetFlag(FLAG_HALF_CARRY, (((value & 0xF) - 1) < 0));
+  memory.Write(registers.HL, result);
   registers.PC += 1;
   numCycles += 12;
 }
 
 void DraconicState::INC_R8(uint8_t& target)
 {
+  uint8_t result = target + 1;
+  SetFlag(FLAG_ZERO, (result == 0));
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_HALF_CARRY, ((((target & 0xF) + 1) & 0x10) != 0));
+  target = result;
   registers.PC += 1;
   numCycles += 4;
 }
 
 void DraconicState::INC_HL()
 {
+  uint8_t value = memory.Read(registers.HL);
+  uint8_t result = value + 1;
+  SetFlag(FLAG_ZERO, (result == 0));
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_HALF_CARRY, ((((value & 0xF) + 1) & 0x10) != 0));
+  memory.Write(registers.HL, result);
   registers.PC += 1;
   numCycles += 12;
 }
