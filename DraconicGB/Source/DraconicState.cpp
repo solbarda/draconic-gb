@@ -102,8 +102,19 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0x3A:
   case 0x02:
   case 0x12:
-
-
+    // 89
+  case 0x22:
+  case 0x32:
+    // 90
+  case 0x01:
+  case 0x11:
+  case 0x21:
+  case 0x31:
+  case 0xF9:
+  case 0xC5:
+  case 0xD5:
+  case 0xE5:
+  case 0xF5:
 
 
 
@@ -606,6 +617,7 @@ void DraconicState::LD_R8_N8(uint8_t& target, uint8_t value)
 
 void DraconicState::LD_R16_N16(uint16_t& target, uint16_t value)
 {
+  target = value;
   registers.PC += 3;
   numCycles += 12;
 }
@@ -693,12 +705,16 @@ void DraconicState::LDH_A_C()
 
 void DraconicState::LD_HLI_A()
 {
+  memory.Write(registers.HL, registers.A);
+  registers.HL++;
   registers.PC += 1;
   numCycles += 8;
 }
 
 void DraconicState::LD_HLD_A()
 {
+  memory.Write(registers.HL, registers.A);
+  registers.HL--;
   registers.PC += 1;
   numCycles += 8;
 }
@@ -910,6 +926,7 @@ void DraconicState::INC_SP()
 
 void DraconicState::LD_SP_N16(uint16_t value)
 {
+  registers.SP = value;
   registers.PC += 3;
   numCycles += 12;
 }
@@ -928,6 +945,7 @@ void DraconicState::LD_HL_SP_E8(uint8_t offset)
 
 void DraconicState::LD_SP_HL()
 {
+  registers.SP = registers.HL;
   registers.PC += 1;
   numCycles += 8;
 }
@@ -950,6 +968,10 @@ void DraconicState::PUSH_AF()
 
 void DraconicState::PUSH_R16(uint16_t value)
 {
+  registers.SP--;
+  memory.Write(registers.SP, value >> 8 & 0xFF);
+  registers.SP--;
+  memory.Write(registers.SP, value & 0xFF);
   registers.PC += 1;
   numCycles += 16;
 }
