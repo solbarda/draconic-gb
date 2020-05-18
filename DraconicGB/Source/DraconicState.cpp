@@ -115,13 +115,11 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0xD5:
   case 0xE5:
   case 0xF5:
-
-
-
-
-
-
-
+    // 91
+  case 0xC1:
+  case 0xD1:
+  case 0xE1:
+  case 0xF1:
     // 92
   case 0x87:
   case 0x80:
@@ -160,6 +158,34 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0x9D:
   case 0xDE:
   case 0x9E:
+    // 94
+  case 0xA7:
+  case 0xA0:
+  case 0xA1:
+  case 0xA2:
+  case 0xA3:
+  case 0xA4:
+  case 0xA5:
+  case 0xE6:
+  case 0xA6:
+  case 0xB7:
+  case 0xB0:
+  case 0xB1:
+  case 0xB2:
+  case 0xB3:
+  case 0xB4:
+  case 0xB5:
+  case 0xF6:
+  case 0xB6:
+  case 0xAF:
+  case 0xA8:
+  case 0xA9:
+  case 0xAA:
+  case 0xAB:
+  case 0xAC:
+  case 0xAD:
+  case 0xEE:
+  case 0xAE:
  
     ParseOpcode(opCode);
     return;
@@ -318,20 +344,32 @@ void DraconicState::INC_HL()
   numCycles += 12;
 }
 
+void DraconicState::OR(uint8_t& target, uint8_t value)
+{
+  target |= value;
+  SetFlag(FLAG_ZERO, (target == 0));
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_CARRY, false);
+}
+
 void DraconicState::OR_A_R8(uint8_t value)
 {
+  OR(registers.A, value);
   registers.PC += 1;
   numCycles += 4;
 }
 
 void DraconicState::OR_A_HL()
 {
+  OR(registers.A, memory.Read(registers.HL));
   registers.PC += 1;
   numCycles += 4;
 }
 
 void DraconicState::OR_A_N8(uint8_t value)
 {
+  OR(registers.A, value);
   registers.PC += 2;
   numCycles += 4;
 }
@@ -408,20 +446,33 @@ void DraconicState::SUB_A_N8(uint8_t value)
   numCycles += 8;
 }
 
+void DraconicState::XOR(uint8_t& target, uint8_t value)
+{
+  target ^= value;
+  SetFlag(FLAG_ZERO, (target == 0));
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_CARRY, false);
+}
+
+
 void DraconicState::XOR_A_R8(uint8_t value)
 {
+  XOR(registers.A, value);
   registers.PC += 1;
   numCycles += 4;
 }
 
 void DraconicState::XOR_A_HL()
 {
+  XOR(registers.A, memory.Read(registers.HL));
   registers.PC += 1;
   numCycles += 8;
 }
 
 void DraconicState::XOR_A_N8(uint8_t value)
 {
+  XOR(registers.A, value);
   registers.PC += 2;
   numCycles += 8;
 }
@@ -957,6 +1008,9 @@ void DraconicState::POP_AF()
 
 void DraconicState::POP_R16(uint16_t& value)
 {
+  uint8_t low = memory.Read(registers.SP++);
+  uint8_t high = memory.Read(registers.SP++);
+  value = high << 8 | low;
   registers.PC += 1;
   numCycles += 12;
 }

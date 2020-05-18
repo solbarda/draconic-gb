@@ -110,6 +110,7 @@ private:
   void INC_R8(uint8_t& target);
   void INC_HL();
 
+  void OR(uint8_t& target, uint8_t value);
   void OR_A_R8(uint8_t value);
   void OR_A_HL();
   void OR_A_N8(uint8_t value);
@@ -124,6 +125,7 @@ private:
   void SUB_A_HL();
   void SUB_A_N8(uint8_t value);
 
+  void XOR(uint8_t& target, uint8_t value);
   void XOR_A_R8(uint8_t value);
   void XOR_A_HL();
   void XOR_A_N8(uint8_t value);
