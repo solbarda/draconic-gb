@@ -113,12 +113,7 @@ void DraconicState::ParseOpcode(uint8_t opCode)
   case 0xC1: POP_R16(registers.BC); break;
   case 0xD1: POP_R16(registers.DE); break;
   case 0xE1: POP_R16(registers.HL); break;
-  case 0xF1:
-    POP_R16(registers.AF);
-    // After failing tests, apparently lower 4 bits of register F
-    // (all flags) are set to zero.
-    registers.F &= 0xF0;
-    break;
+  case 0xF1: POP_AF(); break;
   case 0xF8: LD_HL_SP_E8(value8Low); break;
   case 0x08: LD_N16_SP(value16); break;
     // 92
