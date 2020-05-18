@@ -121,14 +121,14 @@ void DraconicState::ParseOpcode(uint8_t opCode)
   case 0xF8: LD_HL_SP_E8(value8Low); break;
   case 0x08: LD_N16_SP(value16); break;
     // 92
-  case 0x87: ADC_A_R8(registers.A); break;
-  case 0x80: ADC_A_R8(registers.B); break;
-  case 0x81: ADC_A_R8(registers.C); break;
-  case 0x82: ADC_A_R8(registers.D); break;
-  case 0x83: ADC_A_R8(registers.E); break;
-  case 0x84: ADC_A_R8(registers.H); break;
-  case 0x85: ADC_A_R8(registers.L); break;
-  case 0xC6: ADC_A_N8( value8Low ); break;
+  case 0x87: ADD_A_R8(registers.A); break;
+  case 0x80: ADD_A_R8(registers.B); break;
+  case 0x81: ADD_A_R8(registers.C); break;
+  case 0x82: ADD_A_R8(registers.D); break;
+  case 0x83: ADD_A_R8(registers.E); break;
+  case 0x84: ADD_A_R8(registers.H); break;
+  case 0x85: ADD_A_R8(registers.L); break;
+  case 0xC6: ADD_A_N8( value8Low ); break;
   case 0x86: ADD_A_HL(); break;
   case 0x8F: ADC_A_R8( registers.A); break;
   case 0x88: ADC_A_R8( registers.B); break;

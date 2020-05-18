@@ -13,10 +13,15 @@ void DraconicGPU::Init(DraconicState* newState, SDL_Window* newWindow, SDL_Rende
   renderer = newRenderer;
 
 
-  shades_of_gray[0x0] = PixelColor(255, 255, 255,255); // 0x0 - White
-  shades_of_gray[0x1] = PixelColor(198, 198, 198, 255); // 0x1 - Light Gray
-  shades_of_gray[0x2] = PixelColor(127, 127, 127, 255); // 0x2 - Drak Gray
-  shades_of_gray[0x3] = PixelColor(0, 0, 0, 255);       // 0x3 - Black/**/
+  //shades_of_gray[0x0] = PixelColor(255, 255, 255,255); // 0x0 - White
+  //shades_of_gray[0x1] = PixelColor(198, 198, 198, 255); // 0x1 - Light Gray
+  //shades_of_gray[0x2] = PixelColor(127, 127, 127, 255); // 0x2 - Drak Gray
+  //shades_of_gray[0x3] = PixelColor(0, 0, 0, 255);       // 0x3 - Black/**/
+
+  shades_of_gray[0x0] = PixelColor(255, 255, 181, 255); // 0x0 - White
+  shades_of_gray[0x1] = PixelColor(123, 198, 123, 255); // 0x1 - Light Gray
+  shades_of_gray[0x2] = PixelColor(107, 140, 66, 255); // 0x2 - Drak Gray
+  shades_of_gray[0x3] = PixelColor(90,57, 33, 255);       // 0x3 - Black/**/
 
   bg_data = new unsigned char[160 * 144 * 4];
   window_data = new unsigned char[160 * 144 * 4];

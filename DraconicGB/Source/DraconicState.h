@@ -114,10 +114,12 @@ private:
   void OR_A_HL();
   void OR_A_N8(uint8_t value);
 
+  void SBC(uint8_t& target, uint8_t value);
   void SBC_A_R8(uint8_t value);
   void SBC_A_HL();
   void SBC_A_N8(uint8_t value);
 
+  void SUB(uint8_t& target, uint8_t value);
   void SUB_A_R8(uint8_t value);
   void SUB_A_HL();
   void SUB_A_N8(uint8_t value);

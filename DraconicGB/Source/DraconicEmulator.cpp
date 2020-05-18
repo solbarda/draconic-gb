@@ -51,6 +51,7 @@ int DraconicEmulator::Start()
   //LoadROMAndStart("./ROM/cpu_instrs.gb");
   //LoadROMAndStart("./ROM/bgbtest.gb");
   //LoadROMAndStart("./ROM/Kirby.gb");
+  LoadROMAndStart("./ROM/2048.gb");
   
   // Start emulator main loop
   MainLoop();
@@ -302,6 +303,18 @@ void DraconicEmulator::DebugRender()
           LoadROMAndStart("./ROM/Kirby.gb");
         if (ImGui::MenuItem("Tetris.gb"))
           LoadROMAndStart("./ROM/Tetris.gb");
+        if (ImGui::MenuItem("Mona_And_The_Witch_Hat.gb"))
+          LoadROMAndStart("./ROM/zgb/Mona_And_The_Witch_Hat.gb");
+        if (ImGui::MenuItem("PrettyPrincessCastleEscape.gb"))
+          LoadROMAndStart("./ROM/zgb/PrettyPrincessCastleEscape.gb");
+        if (ImGui::MenuItem("SuperPrincess.gb"))
+          LoadROMAndStart("./ROM/zgb/SuperPrincess.gb");
+        if(ImGui::MenuItem("tobu.gb"))
+          LoadROMAndStart("./ROM/tobu.gb");
+        if (ImGui::MenuItem("airaki.gb"))
+          LoadROMAndStart("./ROM/airaki.gb");
+        if (ImGui::MenuItem("2048.gb"))
+          LoadROMAndStart("./ROM/2048.gb");
         ImGui::EndMenu();
       }
       ImGui::Separator();
