@@ -210,6 +210,7 @@ private:
   void LD_A_HLD();
   
 
+  void CALL(uint16_t addr);
   // Jumps and Subroutines ---------------------------------------
 
   void CALL_N16(uint16_t addr);

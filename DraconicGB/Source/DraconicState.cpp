@@ -246,6 +246,12 @@ void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
   case 0x30:
   case 0x38:
   case 0xE9:
+    // 107
+  case 0xCD:
+  case 0xC4:
+  case 0xCC:
+  case 0xD4:
+  case 0xDC:
     ParseOpcode(opCode);
     return;
   default:
@@ -918,34 +924,54 @@ void DraconicState::LD_A_HLD()
   numCycles += 8;
 }
 
+
+void DraconicState::CALL(uint16_t addr)
+{
+  registers.SP--;
+  memory.Write(registers.SP, registers.PC >> 8 & 0xFF);
+  registers.SP--;
+  memory.Write(registers.SP, registers.PC & 0xFF);
+  JP(addr);
+  numCycles += 12;
+}
+
 void DraconicState::CALL_N16(uint16_t addr)
 {
   registers.PC += 3;
   numCycles += 12;
+  CALL(addr);
 }
 
 void DraconicState::CALLNZ_N16(uint16_t addr)
 {
   registers.PC += 3;
   numCycles += 12;
+  if ((registers.F & FLAG_ZERO) == 0)
+    CALL(addr);
 }
 
 void DraconicState::CALLZ_N16(uint16_t addr)
 {
   registers.PC += 3;
   numCycles += 12;
+  if ((registers.F & FLAG_ZERO) != 0)
+    CALL(addr);
 }
 
 void DraconicState::CALLNC_N16(uint16_t addr)
 {
   registers.PC += 3;
   numCycles += 12;
+  if ((registers.F & FLAG_CARRY) == 0)
+    CALL(addr);
 }
 
 void DraconicState::CALLC_N16(uint16_t addr)
 {
   registers.PC += 3;
   numCycles += 12;
+  if ((registers.F & FLAG_CARRY) != 0)
+    CALL(addr);
 }
 
 void DraconicState::JP(uint16_t target)
