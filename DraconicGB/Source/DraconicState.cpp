@@ -13,6 +13,8 @@ void DraconicState::SetFlag(int flag, bool value)
 
 void DraconicState::ParseOpcodeDeprecated(uint8_t opCode)
 {
+  ParseOpcode(opCode);
+  return;
   if(opCode == 0xCB)
     DraconicCPU->parse_opcode(opCode);
   else
@@ -366,60 +368,95 @@ void DraconicState::INC_R16(uint16_t& target)
 
 void DraconicState::BIT_U3_R8(uint8_t value, uint8_t bit)
 {
+  SetFlag(FLAG_ZERO, (((1 << bit) & ~value) != 0));
+  SetFlag(FLAG_HALF_CARRY, true);
+  SetFlag(FLAG_SUB, false);
   registers.PC += 2;
   numCycles += 8;
 }
 
 void DraconicState::BIT_U3_HL(uint8_t bit)
 {
+  uint8_t value = memory.Read(registers.HL);
+  SetFlag(FLAG_ZERO, (((1 << bit) & ~value) != 0));
+  SetFlag(FLAG_HALF_CARRY, true);
+  SetFlag(FLAG_SUB, false);
   registers.PC += 2;
   numCycles += 12;
 }
 
-void DraconicState::RES_U3_R8(uint8_t& target, uint8_t value)
+void DraconicState::RES_U3_R8(uint8_t& target, uint8_t bit)
 {
+  target = (~(1 << bit) & target);
   registers.PC += 2;
   numCycles += 8;
 }
 
-void DraconicState::RES_U3_HL(uint8_t value)
+void DraconicState::RES_U3_HL(uint8_t bit)
 {
+  uint8_t value = memory.Read(registers.HL);
+  value = (~(1 << bit) & value);
+  memory.Write(registers.HL, value);
   registers.PC += 2;
   numCycles += 16;
 }
 
-void DraconicState::SET_U3_R8(uint8_t& target, uint8_t value)
+void DraconicState::SET_U3_R8(uint8_t& target, uint8_t bit)
 {
+  target = (target | (1 << bit));
   registers.PC += 2;
   numCycles += 8;
 }
 
-void DraconicState::SET_U3_HL(uint8_t value)
+void DraconicState::SET_U3_HL(uint8_t bit)
 {
+  uint8_t value = memory.Read(registers.HL);
+  value = (value | (1 << bit));
+  memory.Write(registers.HL, value);
   registers.PC += 2;
   numCycles += 16;
 }
 
 void DraconicState::SWAP_R8(uint8_t& target)
 {
+  uint8_t first = target >> 4;
+  uint8_t second = target << 4;
+  uint8_t swapped = first | second;
+  target = swapped;
+  SetFlag(FLAG_CARRY, false);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_ZERO, (target == 0));
   registers.PC += 2;
   numCycles += 8;
 }
 
 void DraconicState::SWAP_HL()
 {
+  uint8_t value = memory.Read(registers.HL);
+  uint8_t first = value >> 4;
+  uint8_t second = value << 4;
+  uint8_t swapped = first | second;
+  value = swapped;
+  SetFlag(FLAG_CARRY, false);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_ZERO, (value == 0));
+  memory.Write(registers.HL, value);
   registers.PC += 2;
   numCycles += 16;
 }
 
 void DraconicState::RL_R8(uint8_t& target)
 {
+  RL(target, true, true);
   registers.PC += 2;
   numCycles += 8;
 }
 
 void DraconicState::RL_HL()
 {
+  RL(registers.HL, true);
   registers.PC += 2;
   numCycles += 16;
 }
@@ -431,16 +468,27 @@ void DraconicState::RLA()
   numCycles += 4;
 }
 
+
+
 void DraconicState::RLC_R8(uint8_t& target)
 {
+  RL(target, false, true);
   registers.PC += 2;
   numCycles += 8;
 }
 
 void DraconicState::RLC_HL()
 {
+  RL(registers.HL, false);
   registers.PC += 2;
   numCycles += 16;
+}
+
+void DraconicState::RL(uint16_t addr, bool carry)
+{
+  uint8_t value = memory.Read(addr);
+  RL(value, carry, true);
+  memory.Write(addr, value);
 }
 
 void DraconicState::RL(uint8_t& target, bool carry, bool zero_flag)
@@ -463,12 +511,14 @@ void DraconicState::RLCA()
 
 void DraconicState::RR_R8(uint8_t& target)
 {
+  RR(target, true, true);
   registers.PC += 2;
   numCycles += 8;
 }
 
 void DraconicState::RR_HL()
 {
+  RR(registers.HL, true);
   registers.PC += 2;
   numCycles += 16;
 }
@@ -482,16 +532,24 @@ void DraconicState::RR_A()
 
 void DraconicState::RRC_R8(uint8_t& target)
 {
+  RR(target, false, true);
   registers.PC += 2;
   numCycles += 8;
 }
 
 void DraconicState::RRC_HL()
 {
+  RR(registers.HL, false);
   registers.PC += 2;
   numCycles += 16;
 }
 
+void DraconicState::RR(uint16_t addr, bool carry)
+{
+  uint8_t value = memory.Read(addr);
+  RR(value, carry, true);
+  memory.Write(addr, value);
+}
 
 void DraconicState::RR(uint8_t& target, bool carry, bool zero_flag)
 {
@@ -514,36 +572,78 @@ void DraconicState::RRC_A()
 
 void DraconicState::SLA_R8(uint8_t& target)
 {
+  uint8_t result = target << 1;
+  SetFlag(FLAG_CARRY, (target & 0x80) != 0);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_ZERO, (result == 0));
+  target = result;
   registers.PC += 2;
   numCycles += 8;
 }
 
 void DraconicState::SLA_HL()
 {
+  uint8_t data = memory.Read(registers.HL);
+  uint8_t result = data << 1;
+  SetFlag(FLAG_CARRY, (data & 0x80) != 0);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_ZERO, (result == 0));
+  data = result;
+  memory.Write(registers.HL, data);
+
   registers.PC += 2;
   numCycles += 16;
 }
 
+void DraconicState::SR(uint8_t& target, bool include_top_bit)
+{
+  bool top_bit_set = is_bit_set(target, BIT_7);
+
+  uint8_t result;
+
+  if (include_top_bit)
+    result = (top_bit_set) ? ((target >> 1) | 0x80) : (target >> 1);
+  else
+    result = target >> 1;
+
+  SetFlag(FLAG_CARRY, (target & 0x01) != 0);
+  SetFlag(FLAG_HALF_CARRY, false);
+  SetFlag(FLAG_SUB, false);
+  SetFlag(FLAG_ZERO, (result == 0));
+
+  target = result;
+}
+
 void DraconicState::SRA_R8(uint8_t& target)
 {
+  SR(target, true);
   registers.PC += 2;
   numCycles += 8;
 }
 
 void DraconicState::SRA_HL()
 {
+  uint8_t data = memory.Read(registers.HL);
+  SR(data, true);
+  memory.Write(registers.HL, data);
   registers.PC += 2;
   numCycles += 16;
 }
 
 void DraconicState::SRL_R8(uint8_t& target)
 {
+  SR(target, false);
   registers.PC += 2;
   numCycles += 8;
 }
 
 void DraconicState::SRL_HL()
 {
+  uint8_t data = memory.Read(registers.HL);
+  SR(data, false);
+  memory.Write(registers.HL, data);
   registers.PC += 2;
   numCycles += 16;
 }
