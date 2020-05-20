@@ -42,8 +42,18 @@ public:
   struct SDL_Window* window;
   struct SDL_Renderer* renderer;
 
+  void Reset();
 public:
 	void Init(class DraconicState* newState, struct SDL_Window* newWindow, struct SDL_Renderer* newRenderer);
+
+  void ClearPixelData();
+
+  void ClearFinalData();
+
+  void ClearBackgroundData();
+
+  void ClearSpriteData();
+
   void UpdateScanline();
   // Scanline updating
   void UpdateScanline(uint8_t current_scanline);
@@ -56,7 +66,7 @@ public:
   void update_window_tile_pixel(uint8_t palette, int display_x, int display_y, int tile_x, int tile_y, uint8_t tile_id);
   bool is_lcd_enabled();
   PixelColor get_pixel_color(uint8_t palette, uint8_t top, uint8_t bottom, int bit, bool is_sprite);
-  void clear_window();
+  void ClearWindowData();
   void render_sprites();
   void render_sprite_tile(uint8_t pallete, int start_x, int start_y, uint8_t tile_id, uint8_t flags);
 };

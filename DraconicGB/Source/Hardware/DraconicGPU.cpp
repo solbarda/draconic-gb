@@ -14,18 +14,16 @@ void DraconicGPU::SetColorPalette(PixelColor Darkest, PixelColor Dark, PixelColo
   shades_of_gray[0x3] = Darkest;       // 0x3 - Black/**/
 }
 
+void DraconicGPU::Reset()
+{
+  ClearPixelData();
+}
+
 void DraconicGPU::Init(DraconicState* newState, SDL_Window* newWindow, SDL_Renderer* newRenderer)
 {
   state = newState;
   window = newWindow;
   renderer = newRenderer;
-
- /* SetColorPalette(
-      PixelColor(0, 0, 0, 255),
-      PixelColor(127, 127, 127, 255),
-      PixelColor(198, 198, 198, 255),
-      PixelColor(255, 255, 255, 255)
-  );*/
 
   SetColorPalette(
     PixelColor(90, 57, 33, 255),
@@ -39,27 +37,7 @@ void DraconicGPU::Init(DraconicState* newState, SDL_Window* newWindow, SDL_Rende
   sprite_data = new unsigned char[160 * 144 * 4];
   final_data = new unsigned char[160 * 144 * 4];
 
-  for (int i = 0; i < 160 * 144 * 4; ++i)
-  {
-    bg_data[i] = 64;
-  }
-
-  for (int i = 0; i < 160 * 144 * 4; ++i)
-  {
-    window_data[i] = 64;
-  }
-
-  for (int i = 0; i < 160 * 144 * 4; ++i)
-  {
-    sprite_data[i] = 64;
-  }
-
-  for (int i = 0; i < 160 * 144 * 4; ++i)
-  {
-    final_data[i] = 64;
-  }
-
-
+  ClearPixelData();
 
   // Create a OpenGL texture identifier
   glGenTextures(1, &bg_texture);
@@ -75,8 +53,6 @@ void DraconicGPU::Init(DraconicState* newState, SDL_Window* newWindow, SDL_Rende
 
   // Enable textures
   glEnable(GL_TEXTURE_2D);
-
-
 
   // Create a OpenGL texture identifier
   glGenTextures(1, &window_texture);
@@ -119,6 +95,39 @@ void DraconicGPU::Init(DraconicState* newState, SDL_Window* newWindow, SDL_Rende
 
 }
 
+
+void DraconicGPU::ClearPixelData()
+{
+  ClearBackgroundData();
+  ClearWindowData();
+  ClearSpriteData();
+  ClearFinalData();
+
+}
+
+void DraconicGPU::ClearFinalData()
+{
+  for (int i = 0; i < 160 * 144 * 4; ++i)
+  {
+    final_data[i] = 0;
+  }
+}
+
+void DraconicGPU::ClearBackgroundData()
+{
+  for (int i = 0; i < 160 * 144 * 4; ++i)
+  {
+    bg_data[i] = 0;
+  }
+}
+
+void DraconicGPU::ClearSpriteData()
+{
+  for (int i = 0; i < 160 * 144 * 4; ++i)
+  {
+    sprite_data[i] = 0;
+  }
+}
 
 void DraconicGPU::SetLCDStatus()
 {
@@ -253,12 +262,7 @@ void DraconicGPU::Render()
   if (!is_lcd_enabled())
     return;
 
-
-  // clear existig sprite and window data
-  for (int i = 0; i < 160 * 144 * 4; ++i)
-  {
-    sprite_data[i] = 0;
-  }
+  ClearSpriteData();
 
   bool do_sprites = IsBitSet(state->memory.GetMemoryLocationData(Addr_LCDC), EBit::BIT_1);
 
@@ -271,6 +275,14 @@ void DraconicGPU::Render()
     final_data[i * 4+1] = bg_data[i * 4+1];
     final_data[i * 4+2] = bg_data[i * 4+2];
     final_data[i * 4+3] = bg_data[i * 4+3];
+
+    if (window_data[i * 4 + 3] > 0)
+    {
+      final_data[i * 4] = window_data[i * 4];
+      final_data[i * 4 + 1] = window_data[i * 4 + 1];
+      final_data[i * 4 + 2] = window_data[i * 4 + 2];
+      final_data[i * 4 + 3] = window_data[i * 4 + 3];
+    }
     if (sprite_data[i*4 + 3] > 0)
     {
       final_data[i * 4] = sprite_data[i * 4];
@@ -289,6 +301,8 @@ void DraconicGPU::Render()
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, sprite_data);
   glBindTexture(GL_TEXTURE_2D, final_texture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, final_data);
+
+  ClearWindowData();
 
 }
 
@@ -519,7 +533,7 @@ PixelColor DraconicGPU::get_pixel_color(uint8_t palette, uint8_t top, uint8_t bo
   }
 }
 
-void DraconicGPU::clear_window()
+void DraconicGPU::ClearWindowData()
 {
 
   for (int i = 0; i < 160 * 144 * 4; ++i)

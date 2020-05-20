@@ -16,6 +16,7 @@ void DraconicEmulator::LoadROMAndStart(std::string romPath)
   // Reset memory and registers to default values
   state.memory.Reset();
   state.registers.Reset();
+  GPU.Reset();
   // Load the ROM into memory
   state.memory.LoadROM(romPath);
   // We set the bEmulatorStarted flag to true so the the CPU can perform its tasks
