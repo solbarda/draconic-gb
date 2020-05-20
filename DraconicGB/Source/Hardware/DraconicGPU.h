@@ -6,6 +6,10 @@
 
 class DraconicGPU
 {
+
+private:
+  int scanline_counter = 456;
+  void SetLCDStatus();
 public:
   class DraconicState* state;
 	int scanlines_rendered = 0;
@@ -40,10 +44,11 @@ public:
 
 public:
 	void Init(class DraconicState* newState, struct SDL_Window* newWindow, struct SDL_Renderer* newRenderer);
+  void UpdateScanline();
   // Scanline updating
-  void update_scanline(uint8_t current_scanline);
+  void UpdateScanline(uint8_t current_scanline);
   // Output all scanlines as a single frame
-  void render();
+  void Render();
 
   void update_bg_scanline(uint8_t current_scanline);
   void update_window_scanline(uint8_t current_scanline);

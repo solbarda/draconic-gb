@@ -14,11 +14,6 @@ void DraconicCPU::LoadState(std::ifstream& file)
 
 }
 
-void DraconicCPU::Init(DraconicState* _state)
-{
-  state = _state;
-}
-
 void DraconicCPU::SetFlag(int flag, bool value)
 {
   if (value)
@@ -601,7 +596,7 @@ void DraconicCPU::SLA_HL()
 
 void DraconicCPU::SR(uint8_t& target, bool include_top_bit)
 {
-  bool top_bit_set = is_bit_set(target, BIT_7);
+  bool top_bit_set = IsBitSet(target, EBit::BIT_7);
 
   uint8_t result;
 

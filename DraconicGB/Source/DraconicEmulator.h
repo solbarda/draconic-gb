@@ -4,6 +4,9 @@
 #include "Hardware/DraconicGPU.h"
 #include "Hardware/DraconicMemory.h"
 #include "Hardware/DraconicCPU.h"
+#include "Hardware/TimerManager.h"
+#include "Hardware/InterruptManager.h"
+#include "Hardware/InputManager.h"
 #include "DraconicState.h"
 // OpenGL Context
 #include <glad/glad.h> 
@@ -24,6 +27,9 @@ public:
   DraconicCPU CPU;
   DraconicGPU GPU;
   DraconicState state;
+  TimerManager timerManager;
+  InterruptManager interruptManager;
+  InputManager inputManager;
 
   // Load a ROM and start the emulation
   void LoadROMAndStart(std::string romPath);
@@ -67,33 +73,7 @@ private:
   bool bDebugDisplayGPU = true;
 
 
-  void OnKeyPressed(SDL_KeyboardEvent key);
-
-  void ProcessInputData(SDL_KeyboardEvent& key, bool bPressed);
-
-  void OnKeyReleased(SDL_KeyboardEvent key);
-  int GetKeyID(SDL_Keysym key);
-
   void SaveState(int id);
   void LoadState(int id);
-
-  int DividerCounter = 0;
-  int divider_frequency = 16384; // 16384 Hz or every 256 CPU clock cycles
-  void UpdateDivider(int cycles);
-
-  int timer_counter = 0; // this may need to be set to some calculated non zero value
-  uint8_t timer_frequency = 0;
-  void UpdateTimers(int cycles);
-  bool IsTimerEnabled();
-  uint8_t GetTimerFrequency();
-  void SetTimerFrequency();
-
-  void RequestInterrupt(uint8_t id);
-  void DoInterrupts();
-  void ServiceInterrupt(uint8_t id);
-
-  int scanline_counter = 456; // Clock cycles per scanline draw
-  void SetLCDStatus();
-  void UpdateScanline(int cycles);
 };
 

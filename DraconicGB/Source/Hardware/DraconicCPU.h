@@ -3,13 +3,14 @@
 #include "SDL_config.h"
 #include "./../Utils.h"
 #include <fstream>
+#include "BaseHardware.h"
 
 #define FLAG_MASK_ZERO 0b10000000;
 #define FLAG_MASK_SUBTRACT 0b01000000;
 #define FLAG_MASK_HALFCARRY 0b00100000;
 #define FLAG_MASK_CARRY 0b00010000;
 
-class DraconicCPU
+class DraconicCPU : public BaseHardware
 {
 public:
   // Public functions
@@ -17,11 +18,8 @@ public:
   void ParseBitOperation(uint8_t op);
   void SaveState(std::ofstream& file);
   void LoadState(std::ifstream& file);
-  void Init(class DraconicState* _state);
 
 private:
-  class DraconicState* state;
-
   void SetFlag(int flag, bool value);
 
   // 8-bit Arithmetic and Logic Instructions -----------------------------------

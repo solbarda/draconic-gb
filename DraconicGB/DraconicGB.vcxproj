@@ -22,12 +22,15 @@
     <ClCompile Include="Source\DraconicEmulator.cpp" />
     <ClCompile Include="Source\DraconicOpcodes.cpp" />
     <ClCompile Include="Source\DraconicState.cpp" />
+    <ClCompile Include="Source\Hardware\BaseHardware.cpp" />
     <ClCompile Include="Source\Hardware\DraconicCartridge.cpp" />
     <ClCompile Include="Source\Hardware\DraconicCPU.cpp" />
     <ClCompile Include="Source\Hardware\DraconicGPU.cpp" />
     <ClCompile Include="Source\Hardware\DraconicMemory.cpp" />
-    <ClCompile Include="Source\Hardware\Opcodes.cpp" />
+    <ClCompile Include="Source\Hardware\InputManager.cpp" />
+    <ClCompile Include="Source\Hardware\InterruptManager.cpp" />
     <ClCompile Include="Source\Hardware\SpecialRegister.cpp" />
+    <ClCompile Include="Source\Hardware\TimerManager.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Utils.cpp" />
     <ClCompile Include="ThirdParty\glad\src\glad.c" />
@@ -163,13 +166,16 @@
   <ItemGroup>
     <ClInclude Include="Source\DraconicEmulator.h" />
     <ClInclude Include="Source\DraconicOpcodes.h" />
+    <ClInclude Include="Source\Hardware\BaseHardware.h" />
     <ClInclude Include="Source\Hardware\DraconicCartridge.h" />
     <ClInclude Include="Source\Hardware\DraconicCPU.h" />
     <ClInclude Include="Source\Hardware\DraconicGPU.h" />
     <ClInclude Include="Source\Hardware\DraconicMemory.h" />
     <ClInclude Include="Source\DraconicState.h" />
-    <ClInclude Include="Source\Hardware\Opcodes.h" />
+    <ClInclude Include="Source\Hardware\InputManager.h" />
+    <ClInclude Include="Source\Hardware\InterruptManager.h" />
     <ClInclude Include="Source\Hardware\SpecialRegister.h" />
+    <ClInclude Include="Source\Hardware\TimerManager.h" />
     <ClInclude Include="Source\Utils.h" />
     <ClInclude Include="ThirdParty\glad\include\glad\glad.h" />
     <ClInclude Include="ThirdParty\glad\include\KHR\khrplatform.h" />

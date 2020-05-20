@@ -81,9 +81,6 @@
     <ClCompile Include="Source\Hardware\DraconicGPU.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\Opcodes.cpp">
-      <Filter>Source Files\Source\Hardware</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DraconicState.cpp">
       <Filter>Source Files\Source</Filter>
     </ClCompile>
@@ -91,6 +88,18 @@
       <Filter>Source Files\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Hardware\DraconicCPU.cpp">
+      <Filter>Source Files\Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\TimerManager.cpp">
+      <Filter>Source Files\Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\InterruptManager.cpp">
+      <Filter>Source Files\Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\InputManager.cpp">
+      <Filter>Source Files\Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\BaseHardware.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
   </ItemGroup>
@@ -153,13 +162,22 @@
     <ClInclude Include="Source\Hardware\DraconicGPU.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Hardware\Opcodes.h">
-      <Filter>Header Files\Hardware</Filter>
-    </ClInclude>
     <ClInclude Include="Source\DraconicOpcodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Hardware\DraconicCPU.h">
+      <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\TimerManager.h">
+      <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\InterruptManager.h">
+      <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\InputManager.h">
+      <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\BaseHardware.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>
   </ItemGroup>

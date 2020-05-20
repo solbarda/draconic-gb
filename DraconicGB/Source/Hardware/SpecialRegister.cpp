@@ -23,17 +23,17 @@ void SpecialRegister::clear()
   set(0x00);
 }
 
-void SpecialRegister::set_bit(unsigned char bit)
+void SpecialRegister::set_bit(EBit bit)
 {
-  *value |= 1 << bit;
+  *value |= 1 << (uint8_t)bit;
 }
 
-void SpecialRegister::clear_bit(unsigned char bit)
+void SpecialRegister::clear_bit(EBit bit)
 {
-  *value &= ~(1 << bit);
+  *value &= ~(1 << (uint8_t)bit);
 }
 
-bool SpecialRegister::is_bit_set(unsigned char bit)
+bool SpecialRegister::is_bit_set(EBit bit)
 {
-  return ((*value >> bit) & 1) ? true : false;
+  return ((*value >> (uint8_t)bit) & 1) ? true : false;
 }

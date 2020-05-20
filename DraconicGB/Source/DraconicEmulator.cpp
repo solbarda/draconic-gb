@@ -140,6 +140,9 @@ int DraconicEmulator::Init()
   // Init the emulator hardware
   CPU.Init(&state);
   GPU.Init(&state, window, renderer);
+  timerManager.Init(&state);
+  interruptManager.Init(&state);
+  inputManager.Init(&state);
 
   return 0;
 }
@@ -188,11 +191,11 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
       // Increment the cycleCount base on the number of cycles elapsed on the CPU
       currentCycle += state.numCycles;
       // Update the CPU Timers based on the cycles
-      UpdateTimers(state.numCycles);
+      timerManager.UpdateTimers();
       // Update the scanlines
-      UpdateScanline(state.numCycles);
+      GPU.UpdateScanline();
       //Perform the interrupts
-      DoInterrupts();
+      interruptManager.DoInterrupts();
       // Reset the CPU current cycles
       state.numCycles = 0;
     }
@@ -215,9 +218,9 @@ void DraconicEmulator::DebugRender()
     if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
       Finished = true;
     if (event.type == SDL_KEYDOWN) 
-      OnKeyPressed(event.key);
+      inputManager.OnKeyPressed(event.key);
     if (event.type == SDL_KEYUP)
-      OnKeyReleased(event.key);
+      inputManager.OnKeyReleased(event.key);
   }
 
   // Start the Dear ImGui frame
@@ -460,21 +463,18 @@ void DraconicEmulator::DebugRender()
   {
     ImGui::Begin("GPU Debug",&bDebugDisplayGPU);
     ImGui::Text("Background");
-    ImGui::Image((void*)(intptr_t)GPU.bg_texture, ImVec2(GPU.width, GPU.height));
+    ImGui::Image((void*)(intptr_t)GPU.bg_texture, ImVec2((float)GPU.width, (float)GPU.height));
     ImGui::Text("Window");
-    ImGui::Image((void*)(intptr_t)GPU.window_texture, ImVec2(GPU.width, GPU.height));
+    ImGui::Image((void*)(intptr_t)GPU.window_texture, ImVec2((float)GPU.width, (float)GPU.height));
     ImGui::Text("Sprite");
-    ImGui::Image((void*)(intptr_t)GPU.sprites_texture, ImVec2(GPU.width, GPU.height));
+    ImGui::Image((void*)(intptr_t)GPU.sprites_texture, ImVec2((float)GPU.width, (float)GPU.height));
     ImGui::End();
   }
-  
 
   // Draw main emulator screen
   ImGui::Begin("GB Screen");
-  ImGui::Image((void*)(intptr_t)GPU.final_texture, ImVec2(GPU.width*2, GPU.height*2), ImVec2(0.0f, 0.0f), ImVec2(1.0f, 1.0f));
+  ImGui::Image((void*)(intptr_t)GPU.final_texture, ImVec2(GPU.width * 2.0f, GPU.height * 2.0f), ImVec2(0.0f, 0.0f), ImVec2(1.0f, 1.0f));
   ImGui::End();
-
- 
 
   // Render everything
   ImGui::Render();
@@ -488,313 +488,7 @@ void DraconicEmulator::DebugRender()
 }
 
 
-void DraconicEmulator::ProcessInputData(SDL_KeyboardEvent& key, bool bPressed)
-{
-  // Get key if
-  int key_id = GetKeyID(key.keysym);
 
-  // If id is invalid return
-  if (key_id < 0)
-    return;
-
-  // Check to see if we are pressing a directional key
-  bool directional = false;
-  if (key.keysym.sym == SDLK_UP || key.keysym.sym == SDLK_DOWN || key.keysym.sym == SDLK_LEFT || key.keysym.sym == SDLK_RIGHT)
-  {
-    directional = true;
-  }
-
-  // Set joypad variable to different value depending if directional key or not
-  uint8_t joypad = (directional) ? state.memory.joypad_arrows : state.memory.joypad_buttons;
-  bool unpressed = is_bit_set(joypad, key_id);
-
-  // If key is already pressed return
-  if ((bPressed && !unpressed) || (!bPressed && unpressed))
-    return;
-
-  // Set the corresponding bits
-  if (directional)
-    state.memory.joypad_arrows = bPressed ? clear_bit(joypad, key_id) : set_bit(joypad, key_id);
-  else
-    state.memory.joypad_buttons = bPressed ? clear_bit(joypad, key_id) : set_bit(joypad, key_id);
-  
-  // Request a joypad interrupt
-  RequestInterrupt(INTERRUPT_JOYPAD);
-}
-
-void DraconicEmulator::OnKeyPressed(SDL_KeyboardEvent key)
-{
-  ProcessInputData(key, true);
-}
-
-void DraconicEmulator::OnKeyReleased(SDL_KeyboardEvent key)
-{
-  ProcessInputData(key, false);
-}
-
-int DraconicEmulator::GetKeyID(SDL_Keysym key)
-{
-  switch (key.sym)
-  {
-  case SDLK_z:
-  case SDLK_RIGHT:
-    return BIT_0;
-  case SDLK_x: // B
-  case SDLK_LEFT:
-    return BIT_1;
-  case SDLK_s: // select
-  case SDLK_UP:
-    return BIT_2;
-  case SDLK_a:
-  case SDLK_DOWN:
-    return BIT_3;
-  default:
-    return -1;
-  }
-}
-
-void DraconicEmulator::UpdateDivider(int cycles)
-{
-  DividerCounter += cycles;
-
-  if (DividerCounter >= 256) // 16384 Hz
-  {
-    DividerCounter = 0;
-    state.memory.DIV.set(state.memory.DIV.get() + 1);
-  }
-}
-
-// Opcode cycle number may need adjusted, used Nintendo values
-void DraconicEmulator::UpdateTimers(int cycles)
-{
-  UpdateDivider(cycles);
-
-  // This can be optimized if needed
-  uint8_t new_freq = GetTimerFrequency();
-
-  if (timer_frequency != new_freq)
-  {
-    SetTimerFrequency();
-    timer_frequency = new_freq;
-  }
-
-  if (IsTimerEnabled())
-  {
-    timer_counter -= cycles;
-
-    // enough CPU clock cycles have happened to update timer
-    if (timer_counter <= 0)
-    {
-      uint8_t timer_value = state.memory.TIMA.get();
-      SetTimerFrequency();
-
-      // Timer will overflow, generate interrupt
-      if (timer_value == 255)
-      {
-        state.memory.TIMA.set(state.memory.TMA.get());
-        RequestInterrupt(INTERRUPT_TIMER);
-      }
-      else
-      {
-        state.memory.TIMA.set(timer_value + 1);
-      }
-    }
-  }
-}
-
-bool DraconicEmulator::IsTimerEnabled()
-{
-  return state.memory.TAC.is_bit_set(BIT_2);
-}
-
-uint8_t DraconicEmulator::GetTimerFrequency()
-{
-  return (state.memory.TAC.get() & 0x3);
-}
-
-void DraconicEmulator::SetTimerFrequency()
-{
-  uint8_t frequency = GetTimerFrequency();
-  timer_frequency = frequency;
-
-  switch (frequency)
-  {
-    // timer_counter calculated by (Clock Speed / selected frequency)
-  case 0: timer_counter = 1024; break; // 4096 Hz
-  case 1: timer_counter = 16; break; // 262144 Hz
-  case 2: timer_counter = 64; break; // 65536 Hz
-  case 3: timer_counter = 256; break; // 16384 Hz
-  }
-}
-
-void DraconicEmulator::RequestInterrupt(uint8_t id)
-{
-  state.memory.IF.set_bit(id);
-}
-
-void DraconicEmulator::DoInterrupts()
-{
-  // If there are any interrupts set
-  if (state.memory.IF.get() > 0)
-  {
-    // Resume  CPU state if halted and interrupts are pending
-    if (state.memory.IE.get() > 0)
-    {
-      
-      if (state.halted)
-      {
-        state.halted = false;
-        state.registers.PC += 1;
-      }
-    }
-    // Loop through each bit and call interrupt for lowest . highest priority bits set
-    for (int i = 0; i < 5; i++)
-    {
-      if (state.memory.IF.is_bit_set(i))
-      {
-        if (state.memory.IE.is_bit_set(i))
-        {
-          // IME only disables the servicing of interrupts,
-          // not all interrupt functionality 
-          if (state.interrupt_master_enable)
-          {
-            ServiceInterrupt(i);
-          }
-        }
-      }
-    }
-  }
-}
-
-void DraconicEmulator::ServiceInterrupt(uint8_t id)
-{
-  state.interrupt_master_enable = false;
-  state.memory.IF.clear_bit(id);
-
-  // Push current execution address to stack
-  state.memory.Write(--state.registers.SP, high_byte(state.registers.PC));
-  state.memory.Write(--state.registers.SP, low_byte(state.registers.PC));
-
-  switch (id)
-  {
-  case INTERRUPT_VBLANK: state.registers.PC = 0x40; break;
-  case INTERRUPT_LCDC:   state.registers.PC = 0x48; break;
-  case INTERRUPT_TIMER:  state.registers.PC = 0x50; break;
-  case INTERRUPT_SERIAL: state.registers.PC = 0x58; break;
-  case INTERRUPT_JOYPAD: state.registers.PC = 0x60; break;
-  }
-}
-
-void DraconicEmulator::SetLCDStatus()
-{
-  uint8_t status = state.memory.STAT.get();
-
-  uint8_t current_line = state.memory.LY.get();
-  // extract current LCD mode
-  uint8_t current_mode = status & 0x03;
-
-  uint8_t mode = 0;
-  bool do_interrupt = false;
-
-  // in VBLANK, set mode to 1
-  if (current_line >= 144)
-  {
-    mode = 1; // In vertical blanking period
-    // 1 binary
-    status = set_bit(status, BIT_0);
-    status = clear_bit(status, BIT_1);
-    do_interrupt = is_bit_set(status, BIT_4);
-
-  }
-  else
-  {
-    int mode2_threshold = 456 - 80;
-    int mode3_threshold = mode2_threshold - 172;
-
-    if (scanline_counter >= mode2_threshold)
-    {
-      mode = 2; // Searching OAM RAM
-      // 2 binary
-      status = set_bit(status, BIT_1);
-      status = clear_bit(status, BIT_0);
-      do_interrupt = is_bit_set(status, BIT_5);
-    }
-    else if (scanline_counter >= mode3_threshold)
-    {
-      mode = 3; // Transferring data to LCD driver
-      // 3 binary
-      status = set_bit(status, BIT_1);
-      status = set_bit(status, BIT_0);
-    }
-    else
-    {
-      mode = 0; // CPU has access to all display RAM
-
-      // If first time encountering H-blank, update the scanline
-      if (current_mode != mode)
-      {
-        // draw current scanline to screen
-        if (current_line < 144 && GPU.scanlines_rendered <= 144)
-          GPU.update_scanline(current_line);
-      }
-
-      // 0 binary
-      status = clear_bit(status, BIT_1);
-      status = clear_bit(status, BIT_0);
-      do_interrupt = is_bit_set(status, BIT_3);
-    }
-  }
-
-  // Entered new mode, request interrupt
-  if (do_interrupt && (mode != current_mode))
-    RequestInterrupt(INTERRUPT_LCDC);
-
-  // check coincidence flag, set bit 2 if it matches
-  if (state.memory.LY.get() == state.memory.LYC.get())
-  {
-    status = set_bit(status, BIT_2);
-
-    if (is_bit_set(status, BIT_6))
-      RequestInterrupt(INTERRUPT_LCDC);
-  }
-  // clear bit 2 if not
-  else
-    status = clear_bit(status, BIT_2);
-
-  state.memory.STAT.set(status);
-  state.memory.video_mode = mode;
-}
-
-void DraconicEmulator::UpdateScanline(int cycles)
-{
-  scanline_counter -= cycles;
-
-  SetLCDStatus();
-
-  if (state.memory.LY.get() > 153)
-    state.memory.LY.clear();
-
-  // Enough time has passed to draw the next scanline
-  if (scanline_counter <= 0)
-  {
-    uint8_t current_scanline = state.memory.LY.get();
-
-    // increment scanline and reset counter
-    state.memory.LY.set(++current_scanline);
-    scanline_counter = 456;
-
-    // Entered VBLANK period
-    if (current_scanline == 144)
-    {
-      RequestInterrupt(INTERRUPT_VBLANK);
-      if (GPU.scanlines_rendered <= 144)
-        GPU.render();
-    }
-    // Reset counter if past maximum
-    else if (current_scanline > 153)
-      state.memory.LY.clear();
-  }
-}
 
 void DraconicEmulator::SaveState(int id)
 {

@@ -157,7 +157,7 @@ void DraconicCartridge::Write(uint16_t location, unsigned char data)
     // Bank selector
     else if (location >= 0x6000 && location <= 0x7FFF)
     {
-      RAM_bank_enabled = is_bit_set(data, 0);
+      RAM_bank_enabled = IsBitSet(data, (EBit)0);
     }
     // RAM banks 00 - 03, if any (read/write)
     else if (location >= 0xA000 && location <= 0xBFFF)
