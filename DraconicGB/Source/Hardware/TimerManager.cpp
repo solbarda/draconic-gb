@@ -2,40 +2,52 @@
 #include "Utils.h"
 #include "DraconicState.h"
 
+TimerManager::TimerManager()
+{
+  timerCounter = 0;
+  timerFrequency = 0;
+  dividerCounter = 0;
+  dividerFrequency = 16384;
+}
+
 // Opcode cycle number may need adjusted, used Nintendo values
 void TimerManager::UpdateTimers()
 {
-  int cycles = state->numCycles;
-  UpdateDivider(cycles);
+  UpdateDivider(state->numCycles);
 
-  // This can be optimized if needed
-  uint8_t new_freq = GetTimerFrequency();
+  // Get the new frequency
+  uint8_t NewFrequency = GetTimerFrequency();
 
-  if (timer_frequency != new_freq)
+  // If our current frequency is different from the new update to match
+  if (timerFrequency != NewFrequency)
   {
     SetTimerFrequency();
-    timer_frequency = new_freq;
+    timerFrequency = NewFrequency;
   }
 
+  // If the timer is enabled we must make the time pass for them
   if (IsTimerEnabled())
   {
-    timer_counter -= cycles;
+    // Subtract the number of cycles elapsed to the timer counter
+    timerCounter -= state->numCycles;
 
-    // enough CPU clock cycles have happened to update timer
-    if (timer_counter <= 0)
+    // If timer counter reaches 0 we update TIMA
+    if (timerCounter <= 0)
     {
-      uint8_t timer_value = state->memory.GetMemoryLocationData(Addr_TIMA);
+      uint8_t TimerValue = state->memory.GetMemoryLocationData(Addr_TIMA);
       SetTimerFrequency();
 
-      // Timer will overflow, generate interrupt
-      if (timer_value == 255)
+      // If timer is about to overflow call interrupt
+      if (TimerValue == 255)
       {
+        // Call the interrupt
         *state->memory.GetMemoryLocation(Addr_TIMA) = state->memory.GetMemoryLocationData(Addr_TMA);
         *state->memory.GetMemoryLocation(Addr_IF) = SetBit(state->memory.GetMemoryLocationData(Addr_IF), (EBit)EInterrupt::INTERRUPT_TIMER);
       }
       else
       {
-        *state->memory.GetMemoryLocation(Addr_TIMA) = timer_value + 1;
+        // Else we increment the timer value and continue counting
+        *state->memory.GetMemoryLocation(Addr_TIMA) = TimerValue + 1;
       }
     }
   }
@@ -43,37 +55,40 @@ void TimerManager::UpdateTimers()
 
 bool TimerManager::IsTimerEnabled()
 {
+  // Return bit of memory that controls if timer is enabled
   return IsBitSet(state->memory.GetMemoryLocationData(Addr_TAC), EBit::BIT_2);
 }
 
 uint8_t TimerManager::GetTimerFrequency()
 {
+  // Return stored timer frequency stored on the first 2 bits
   return state->memory.GetMemoryLocationData(Addr_TAC) & 0x3;
 }
 
 void TimerManager::SetTimerFrequency()
 {
-  uint8_t frequency = GetTimerFrequency();
-  timer_frequency = frequency;
+  // Update the frequency to the selected one
+  timerFrequency = GetTimerFrequency();
 
-  switch (frequency)
+  switch (timerFrequency)
   {
-    // timer_counter calculated by (Clock Speed / selected frequency)
-  case 0: timer_counter = 1024; break; // 4096 Hz
-  case 1: timer_counter = 16; break; // 262144 Hz
-  case 2: timer_counter = 64; break; // 65536 Hz
-  case 3: timer_counter = 256; break; // 16384 Hz
+  case 0: timerCounter = 1024; break; // 4096 Hz
+  case 1: timerCounter = 16; break; // 262144 Hz
+  case 2: timerCounter = 64; break; // 65536 Hz
+  case 3: timerCounter = 256; break; // 16384 Hz
   }
 }
 
 
 void TimerManager::UpdateDivider(int cycles)
 {
-  DividerCounter += cycles;
+  // Update the divider coutner based on the cycles
+  dividerCounter += cycles;
 
-  if (DividerCounter >= 256) // 16384 Hz
+  // If divider counter exceed the value update the memory location controlling divider
+  if (dividerCounter >= 256) // 16384 Hz
   {
-    DividerCounter = 0;
+    dividerCounter = 0;
     *state->memory.GetMemoryLocation(Addr_DIV) = state->memory.GetMemoryLocationData(Addr_DIV) + 1;
   }
 }

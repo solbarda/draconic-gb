@@ -5,8 +5,6 @@
 #include <fstream>
 
 
-
-
 DraconicMemory::DraconicMemory()
 {
   memoryData = std::vector<uint8_t>(Size_Memory);

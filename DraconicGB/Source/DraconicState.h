@@ -67,10 +67,11 @@ struct Registers
 class DraconicState
 {
 public:
+  DraconicState();
   Registers registers;
   DraconicMemory memory;
-  int numCycles = 0;
-  bool interrupt_master_enable = true;
-  bool halted = false;
-  int CLOCK_SPEED = 4194304; // 4194304 Hz CPU speed
+  int numCycles;
+  bool bInterruptMasterEnabled;
+  bool bHalted;
+  int CPUClockSpeed;
 };

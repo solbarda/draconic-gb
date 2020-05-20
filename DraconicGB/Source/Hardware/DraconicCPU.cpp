@@ -3,16 +3,11 @@
 #include "DraconicState.h"
 #include "DraconicMemory.h"
 
-
-void DraconicCPU::SaveState(std::ofstream& file)
-{
-
-}
-
-void DraconicCPU::LoadState(std::ifstream& file)
-{
-
-}
+// Implementation of opcodes based on 
+//  https://github.com/mattbruv/Gameboy-Emulator
+//  https://gbdev.io/gb-opcodes/optables/
+//  https://gbdev.io/pandocs/
+//  https://github.com/AntonioND/giibiiadvance/blob/master/docs/TCAGBD.pdf
 
 void DraconicCPU::SetFlag(int flag, bool value)
 {
@@ -21,8 +16,6 @@ void DraconicCPU::SetFlag(int flag, bool value)
   else
     state->registers.F &= ~(flag);
 }
-
-
 
 void DraconicCPU::ADC(uint8_t& target, uint8_t value8Low)
 {
@@ -969,7 +962,7 @@ void DraconicCPU::RETI()
 {
   state->registers.PC += 1;
   state->numCycles += 4;
-  state->interrupt_master_enable = true;
+  state->bInterruptMasterEnabled = true;
   RET_Impl();
 }
 
@@ -1197,7 +1190,7 @@ void DraconicCPU::DI()
 {
   state->registers.PC += 1;
   state->numCycles += 4;
-  state->interrupt_master_enable = false;
+  state->bInterruptMasterEnabled = false;
 
 }
 
@@ -1205,14 +1198,14 @@ void DraconicCPU::EI()
 {
   state->registers.PC += 1;
   state->numCycles += 4;
-  state->interrupt_master_enable = true;
+  state->bInterruptMasterEnabled = true;
 }
 
 void DraconicCPU::HALT()
 {
   state->registers.PC += 1;
   state->numCycles += 4;
-  state->halted = true;
+  state->bHalted = true;
   state->registers.PC--;
 }
 

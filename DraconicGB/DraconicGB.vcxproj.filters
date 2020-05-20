@@ -162,9 +162,6 @@
     <ClInclude Include="Source\Hardware\DraconicGPU.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DraconicOpcodes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Hardware\DraconicCPU.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>

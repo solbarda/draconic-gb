@@ -5,22 +5,26 @@
 #include <fstream>
 #include "BaseHardware.h"
 
+// Flag mascs for easier use
 #define FLAG_MASK_ZERO 0b10000000;
 #define FLAG_MASK_SUBTRACT 0b01000000;
 #define FLAG_MASK_HALFCARRY 0b00100000;
 #define FLAG_MASK_CARRY 0b00010000;
 
+// Class that represents the CPU of the emulator, parses opcodes and alters the tate
 class DraconicCPU : public BaseHardware
 {
 public:
-  // Public functions
+  // Parse an opcode and alter state
   void ParseOpcode(uint8_t opCode);
+  // Special case where opcode is 0xCB
   void ParseBitOperation(uint8_t op);
-  void SaveState(std::ofstream& file);
-  void LoadState(std::ifstream& file);
 
 private:
+  // Utility function to set a flag on the flag registers
   void SetFlag(int flag, bool value);
+
+  // Instructions as they appear on https://rednex.github.io/rgbds/gbz80.7.html
 
   // 8-bit Arithmetic and Logic Instructions -----------------------------------
   void ADC(uint8_t& target, uint8_t value);

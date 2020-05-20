@@ -165,7 +165,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\DraconicEmulator.h" />
-    <ClInclude Include="Source\DraconicOpcodes.h" />
     <ClInclude Include="Source\Hardware\BaseHardware.h" />
     <ClInclude Include="Source\Hardware\DraconicCartridge.h" />
     <ClInclude Include="Source\Hardware\DraconicCPU.h" />

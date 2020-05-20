@@ -178,7 +178,7 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
   if (accumTime >= timeBetweenFrames)
   {
     // We will need to perform as many cycles as our current framerate needs us to do
-    float cyclesPerFrame = state.CLOCK_SPEED / framerate;
+    float cyclesPerFrame = state.CPUClockSpeed / framerate;
     int currentCycle = 0;
     while (currentCycle < cyclesPerFrame)
     {
@@ -195,7 +195,7 @@ void DraconicEmulator::EmulatorMainLoop(float deltaTime)
       // Update the scanlines
       GPU.UpdateScanline();
       //Perform the interrupts
-      interruptManager.DoInterrupts();
+      interruptManager.PerformInterrupts();
       // Reset the CPU current cycles
       state.numCycles = 0;
     }
@@ -499,7 +499,6 @@ void DraconicEmulator::SaveState(int id)
 
   if (!file.bad())
   {
-    CPU.SaveState(file);
     state.memory.save_state(file);
     file.close();
 
@@ -514,7 +513,6 @@ void DraconicEmulator::LoadState(int id)
 
   if (file.is_open())
   {
-    CPU.LoadState(file);
     state.memory.load_state(file);
     file.close();
 

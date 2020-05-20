@@ -88,7 +88,7 @@ unsigned char DraconicCartridge::Read(uint16_t location)
   return 0;
 }
 
-void DraconicCartridge::Write(uint16_t location, unsigned char data)
+void DraconicCartridge::Write(uint16_t location, uint8_t data)
 {
   switch (MemoryType)
   {

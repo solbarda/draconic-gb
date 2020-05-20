@@ -3,7 +3,6 @@
 #include "SDL_config.h"
 #include <string>
 #include "DraconicCartridge.h"
-#include "SpecialRegister.h"
 
 const int Addr_WRAM = 0x0000;
 const int Addr_ZRAM = 0x2000;

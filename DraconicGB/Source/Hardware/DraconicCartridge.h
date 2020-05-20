@@ -2,7 +2,7 @@
 #include <vector>
 #include <fstream>
 
-
+// Different type of modes that the cartridges can be in
 enum class EMemoryBankControllerType
 {
   DEFAULT,
@@ -11,6 +11,7 @@ enum class EMemoryBankControllerType
   MBC3
 };
 
+// Class that represents a game cartridge
 class DraconicCartridge
 {
 public:
