@@ -1,6 +1,6 @@
 #pragma once
 #include "SDL_config.h"
-#include "BaseHardware.h"
+#include "Hardware/BaseHardware.h"
 
 // Handles interruptons of the cpu
 class InterruptManager : public BaseHardware{

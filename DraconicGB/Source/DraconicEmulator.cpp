@@ -2,8 +2,8 @@
 #include <iostream>
 #include "SDL_config.h"
 #include "../ThirdParty/imgui/imgui_memory_editor.h"
-#include "DraconicState.h"
-#include "Utils.h"
+#include "Hardware/DraconicState.h"
+#include "Utils/Utils.h"
 #include <fstream>
 #include <iosfwd>
 #include "SDL_syswm.h"

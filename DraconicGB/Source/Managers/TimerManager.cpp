@@ -1,6 +1,6 @@
 #include "TimerManager.h"
-#include "Utils.h"
-#include "DraconicState.h"
+#include "Utils/Utils.h"
+#include "Hardware/DraconicState.h"
 
 TimerManager::TimerManager()
 {

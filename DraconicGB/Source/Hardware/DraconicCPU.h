@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL_config.h"
-#include "./../Utils.h"
+#include "Utils/Utils.h"
 #include <fstream>
 #include "BaseHardware.h"
 

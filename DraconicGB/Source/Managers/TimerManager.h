@@ -1,6 +1,6 @@
 #pragma once
 #include "SDL_config.h"
-#include "BaseHardware.h"
+#include "Hardware/BaseHardware.h"
 
 // Class that handles the timer functionality
 class TimerManager : public BaseHardware{

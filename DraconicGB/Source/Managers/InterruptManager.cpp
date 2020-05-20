@@ -1,6 +1,6 @@
 #include "InterruptManager.h"
-#include "Utils.h"
-#include "DraconicState.h"
+#include "Utils/Utils.h"
+#include "Hardware/DraconicState.h"
 
 void InterruptManager::RequestInterrupt(uint8_t id)
 {

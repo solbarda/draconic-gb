@@ -2,7 +2,7 @@
 #include "SDL_config.h"
 #include "SDL_syswm.h"
 #include "../ThirdParty/glad/include/glad/glad.h"
-#include "Utils.h"
+#include "Utils/Utils.h"
 
 class DraconicGPU
 {

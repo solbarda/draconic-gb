@@ -37,6 +37,18 @@
     <Filter Include="Header Files\Hardware">
       <UniqueIdentifier>{b016fe3b-5fdc-430b-a802-f7fa7d3e5ebc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Managers">
+      <UniqueIdentifier>{854d7c55-5700-4fb7-89c2-2f89d6d3dc3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utils">
+      <UniqueIdentifier>{6d63fdd1-7aa2-4995-bffd-164b63017e9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Source\Managers">
+      <UniqueIdentifier>{00d17fda-f3c8-49ed-a5e9-4a6826a7fde4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Source\Utils">
+      <UniqueIdentifier>{b19b5ef4-bb0e-4f2b-a44e-eeb99f103e05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -72,35 +84,32 @@
     <ClCompile Include="Source\Hardware\DraconicCartridge.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Hardware\SpecialRegister.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Hardware\DraconicGPU.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DraconicState.cpp">
-      <Filter>Source Files\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DraconicOpcodes.cpp">
-      <Filter>Source Files\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Hardware\DraconicCPU.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Hardware\TimerManager.cpp">
-      <Filter>Source Files\Source\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Hardware\InterruptManager.cpp">
-      <Filter>Source Files\Source\Hardware</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Hardware\InputManager.cpp">
-      <Filter>Source Files\Source\Hardware</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Hardware\BaseHardware.cpp">
       <Filter>Source Files\Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\InterruptManager.cpp">
+      <Filter>Source Files\Source\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\TimerManager.cpp">
+      <Filter>Source Files\Source\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\InputManager.cpp">
+      <Filter>Source Files\Source\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\DraconicState.cpp">
+      <Filter>Source Files\Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Hardware\DraconicOpcodes.cpp">
+      <Filter>Source Files\Source\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\Utils.cpp">
+      <Filter>Source Files\Source\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -147,17 +156,8 @@
     <ClInclude Include="ThirdParty\imgui\imgui_memory_editor.h">
       <Filter>Source Files\ThirdParty\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DraconicState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Hardware\DraconicCartridge.h">
       <Filter>Header Files\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Hardware\SpecialRegister.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Hardware\DraconicGPU.h">
       <Filter>Header Files\Hardware</Filter>
@@ -165,17 +165,23 @@
     <ClInclude Include="Source\Hardware\DraconicCPU.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Hardware\TimerManager.h">
-      <Filter>Header Files\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Hardware\InterruptManager.h">
-      <Filter>Header Files\Hardware</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Hardware\InputManager.h">
-      <Filter>Header Files\Hardware</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Hardware\BaseHardware.h">
       <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hardware\DraconicState.h">
+      <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Managers\InterruptManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Managers\TimerManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Managers\InputManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Utils.h">
+      <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -4,10 +4,10 @@
 #include "Hardware/DraconicGPU.h"
 #include "Hardware/DraconicMemory.h"
 #include "Hardware/DraconicCPU.h"
-#include "Hardware/TimerManager.h"
-#include "Hardware/InterruptManager.h"
-#include "Hardware/InputManager.h"
-#include "DraconicState.h"
+#include "Managers/TimerManager.h"
+#include "Managers/InterruptManager.h"
+#include "Managers/InputManager.h"
+#include "Hardware/DraconicState.h"
 // OpenGL Context
 #include <glad/glad.h> 
 // Imgui

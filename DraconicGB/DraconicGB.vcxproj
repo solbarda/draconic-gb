@@ -20,19 +20,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DraconicEmulator.cpp" />
-    <ClCompile Include="Source\DraconicOpcodes.cpp" />
-    <ClCompile Include="Source\DraconicState.cpp" />
     <ClCompile Include="Source\Hardware\BaseHardware.cpp" />
     <ClCompile Include="Source\Hardware\DraconicCartridge.cpp" />
     <ClCompile Include="Source\Hardware\DraconicCPU.cpp" />
     <ClCompile Include="Source\Hardware\DraconicGPU.cpp" />
     <ClCompile Include="Source\Hardware\DraconicMemory.cpp" />
-    <ClCompile Include="Source\Hardware\InputManager.cpp" />
-    <ClCompile Include="Source\Hardware\InterruptManager.cpp" />
-    <ClCompile Include="Source\Hardware\SpecialRegister.cpp" />
-    <ClCompile Include="Source\Hardware\TimerManager.cpp" />
+    <ClCompile Include="Source\Hardware\DraconicOpcodes.cpp" />
+    <ClCompile Include="Source\Hardware\DraconicState.cpp" />
     <ClCompile Include="Source\Main.cpp" />
-    <ClCompile Include="Source\Utils.cpp" />
+    <ClCompile Include="Source\Managers\InputManager.cpp" />
+    <ClCompile Include="Source\Managers\InterruptManager.cpp" />
+    <ClCompile Include="Source\Managers\TimerManager.cpp" />
+    <ClCompile Include="Source\Utils\Utils.cpp" />
     <ClCompile Include="ThirdParty\glad\src\glad.c" />
     <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_opengl3.cpp" />
     <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_sdl.cpp" />
@@ -170,12 +169,11 @@
     <ClInclude Include="Source\Hardware\DraconicCPU.h" />
     <ClInclude Include="Source\Hardware\DraconicGPU.h" />
     <ClInclude Include="Source\Hardware\DraconicMemory.h" />
-    <ClInclude Include="Source\DraconicState.h" />
-    <ClInclude Include="Source\Hardware\InputManager.h" />
-    <ClInclude Include="Source\Hardware\InterruptManager.h" />
-    <ClInclude Include="Source\Hardware\SpecialRegister.h" />
-    <ClInclude Include="Source\Hardware\TimerManager.h" />
-    <ClInclude Include="Source\Utils.h" />
+    <ClInclude Include="Source\Hardware\DraconicState.h" />
+    <ClInclude Include="Source\Managers\InputManager.h" />
+    <ClInclude Include="Source\Managers\InterruptManager.h" />
+    <ClInclude Include="Source\Managers\TimerManager.h" />
+    <ClInclude Include="Source\Utils\Utils.h" />
     <ClInclude Include="ThirdParty\glad\include\glad\glad.h" />
     <ClInclude Include="ThirdParty\glad\include\KHR\khrplatform.h" />
     <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_opengl3.h" />

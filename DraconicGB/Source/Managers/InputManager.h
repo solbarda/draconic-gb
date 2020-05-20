@@ -1,8 +1,8 @@
 #pragma once
 #include "SDL_config.h"
 #include "SDL_events.h"
-#include "BaseHardware.h"
-#include "Utils.h"
+#include "Hardware/BaseHardware.h"
+#include "Utils/Utils.h"
 
 // Class responsible for handling input and altering input registers/memory
 class InputManager : public BaseHardware {
