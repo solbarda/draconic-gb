@@ -5,72 +5,59 @@
 #include <fstream>
 
 
+
+
 DraconicMemory::DraconicMemory()
 {
-  WRAM = std::vector<unsigned char>(0x2000); // $C000 - $DFFF, 8kB Working RAM
-  ZRAM = std::vector<unsigned char>(0x0100); // $FF00 - $FFFF, 256 bytes of RAM
-  VRAM = std::vector<unsigned char>(0x2000); // $8000 - $9FFF, 8kB Video RAM
-  OAM = std::vector<unsigned char>(0x0100); // $FE00 - $FEFF, OAM Sprite RAM, IO RAM
-
-  // Initialize Memory Register objects for easy reference
-  P1 = SpecialRegister(&ZRAM[0x00]);
-  DIV = SpecialRegister(&ZRAM[0x04]);
-  TIMA = SpecialRegister(&ZRAM[0x05]);
-  TMA = SpecialRegister(&ZRAM[0x06]);
-  TAC = SpecialRegister(&ZRAM[0x07]);
-  LCDC = SpecialRegister(&ZRAM[0x40]);
-  STAT = SpecialRegister(&ZRAM[0x41]);
-  SCY = SpecialRegister(&ZRAM[0x42]);
-  SCX = SpecialRegister(&ZRAM[0x43]);
-  LY = SpecialRegister(&ZRAM[0x44]);
-  LYC = SpecialRegister(&ZRAM[0x45]);
-  DMA = SpecialRegister(&ZRAM[0x46]);
-  BGP = SpecialRegister(&ZRAM[0x47]);
-  OBP0 = SpecialRegister(&ZRAM[0x48]);
-  OBP1 = SpecialRegister(&ZRAM[0x49]);
-  WY = SpecialRegister(&ZRAM[0x4A]);
-  WX = SpecialRegister(&ZRAM[0x4B]);
-  IF = SpecialRegister(&ZRAM[0x0F]);
-  IE = SpecialRegister(&ZRAM[0xFF]);
-
+  memoryData = std::vector<uint8_t>(Size_Memory);
   Reset();
 }
 
 void DraconicMemory::Reset()
 {
-  fill(WRAM.begin(), WRAM.end(), 0);
-  fill(ZRAM.begin(), ZRAM.end(), 0);
-  fill(VRAM.begin(), VRAM.end(), 0);
-  fill(OAM.begin(), OAM.end(), 0);
-
-  // The following memory locations are set to the following values after gameboy BIOS runs
-  P1.set(0x00);
-  DIV.set(0x00);
-  TIMA.set(0x00);
-  TMA.set(0x00);
-  TAC.set(0x00);
-  LCDC.set(0x91);
-  SCY.set(0x00);
-  SCX.set(0x00);
-  LYC.set(0x00);
-  BGP.set(0xFC);
-  OBP0.set(0xFF);
-  OBP1.set(0xFF);
-  WY.set(0x00);
-  WX.set(0x00);
-  IF.set(0x00);
-  IE.set(0x00);
-
   // Initialize input to HIGH state (unpressed)
   joypad_buttons = 0xF;
   joypad_arrows = 0xF;
+
+  fill(memoryData.begin(), memoryData.end(), 0);
 }
 
 
+uint8_t* DraconicMemory::GetVRAM()
+{
+  return &(memoryData[Addr_VRAM]);
+}
+
+uint8_t* DraconicMemory::GetOAM()
+{
+  return &(memoryData[Addr_OAM]);
+
+}
+
+uint8_t* DraconicMemory::GetWRAM()
+{
+  return &(memoryData[Addr_WRAM]);
+
+}
+
+uint8_t* DraconicMemory::GetZRAM()
+{
+  return &(memoryData[Addr_ZRAM]);
+}
+
+uint8_t* DraconicMemory::GetMemoryLocation(int location)
+{
+  return &(memoryData[location]);
+}
+
+uint8_t DraconicMemory::GetMemoryLocationData(int location)
+{
+  return memoryData[location];
+}
+
 void DraconicMemory::PerformDMATransfer()
 {
-  uint16_t  address = DMA.get() << 8; // multiply by 100
-
+  uint16_t  address = (*GetMemoryLocation(Addr_DMA)) << 8; // multiply by 100
   for (int i = 0; i < 0xA0; i++)
   {
     Write((0xFE00 + i), Read(address + i));
@@ -79,7 +66,8 @@ void DraconicMemory::PerformDMATransfer()
 
 unsigned char DraconicMemory::GetJoypadState()
 {
-  unsigned char request = P1.get();
+  //unsigned char request = P1.get();
+  unsigned char request = *(GetMemoryLocation(Addr_P1));
 
   switch (request)
   {
@@ -94,12 +82,7 @@ unsigned char DraconicMemory::GetJoypadState()
 
 size_t DraconicMemory::GetTotalMemorySize()
 {
-  size_t memorySize = 0;
-  memorySize += OAM.size() * sizeof(unsigned char);
-  memorySize += VRAM.size() * sizeof(unsigned char);
-  memorySize += WRAM.size() * sizeof(unsigned char);
-  memorySize += ZRAM.size() * sizeof(unsigned char);
-  return memorySize;
+  return memoryData.size() * sizeof(uint8_t);
 }
 
 void DraconicMemory::LoadROM(std::string location)
@@ -225,7 +208,8 @@ unsigned char DraconicMemory::Read(uint16_t location)
     // Graphics VRAM
   case 0x8000:
   case 0x9000:
-    return VRAM[location & 0x1FFF];
+    return GetVRAM()[location & 0x1FFF];
+    //return VRAM[location & 0x1FFF];
 
     // External RAM
   case 0xA000:
@@ -236,7 +220,8 @@ unsigned char DraconicMemory::Read(uint16_t location)
   case 0xC000:
   case 0xD000:
   case 0xE000:
-    return WRAM[location & 0x1FFF];
+    return GetWRAM()[location & 0x1FFF];
+    //return WRAM[location & 0x1FFF];
 
     // Remaining Working RAM Shadow, I/O, Zero page RAM
   case 0xF000:
@@ -247,24 +232,30 @@ unsigned char DraconicMemory::Read(uint16_t location)
     case 0x400: case 0x500: case 0x600: case 0x700:
     case 0x800: case 0x900: case 0xA00: case 0xB00:
     case 0xC00: case 0xD00:
-      return WRAM[location & 0x1FFF];
+      return GetWRAM()[location & 0x1FFF];
 
       // Sprite OAM
     case 0xE00:
-      return OAM[location & 0xFF];
+      return GetOAM()[location & 0xFF];
 
     case 0xF00:
       if (location == 0xFF00)
+      {
         return GetJoypadState();
-      else
-        return ZRAM[location & 0xFF];
+
+      }
+      else 
+      {
+        return GetZRAM()[location & 0xFF];
+      }
+        
     }
   default:
     return 0xFF;
   }
 }
 
-void DraconicMemory::Write(uint16_t location, unsigned char data)
+void DraconicMemory::Write(uint16_t location, uint8_t data)
 {
   switch (location & 0xF000)
   {
@@ -284,7 +275,7 @@ void DraconicMemory::Write(uint16_t location, unsigned char data)
   case 0x8000:
   case 0x9000:
     // Cannot write to VRAM during mode 3 
-    VRAM[location & 0x1FFF] = data;
+    GetVRAM()[location & 0x1FFF] = data;
     break;
 
     // External RAM
@@ -297,7 +288,7 @@ void DraconicMemory::Write(uint16_t location, unsigned char data)
   case 0xC000:
   case 0xD000:
   case 0xE000:
-    WRAM[location & 0x1FFF] = data;
+    GetWRAM()[location & 0x1FFF] = data;
     break;
 
     // Remaining Working RAM Shadow, I/O, Zero page RAM
@@ -309,12 +300,12 @@ void DraconicMemory::Write(uint16_t location, unsigned char data)
     case 0x400: case 0x500: case 0x600: case 0x700:
     case 0x800: case 0x900: case 0xA00: case 0xB00:
     case 0xC00: case 0xD00:
-      WRAM[location & 0x1FFF] = data;
+      GetWRAM()[location & 0x1FFF] = data;
       break;
 
       // Sprite OAM
     case 0xE00:
-      OAM[location & 0xFF] = data;
+      GetOAM()[location & 0xFF] = data;
       break;
 
     case 0xF00:
@@ -324,37 +315,40 @@ void DraconicMemory::Write(uint16_t location, unsigned char data)
   }
 }
 
-void DraconicMemory::WriteZeroPage(uint16_t location, unsigned char data)
+
+void DraconicMemory::WriteZeroPage(uint16_t location, uint8_t data)
 {
   switch (location)
   {
     // Joypad Register - only bits 4 & 5 can be written to
   case 0xFF00:
-    ZRAM[0x00] = (data & 0x30);
+    GetZRAM()[0x00] = (data & 0x30);
     break;
     // Divider Register - Write as zero no matter content
   case 0xFF04:
-    ZRAM[0x04] = 0;
+    GetZRAM()[0x04] = 0;
     break;
     // TODO: STAT - writing to match flag resets flag but doesn't change mode
   case 0xFF41:
-    ZRAM[0x41] = (data & 0xFC) | (STAT.get() & 0x03);
+    GetZRAM()[0x41] = (data & 0xFC) | (memoryData[Addr_STAT] & 0x03);
     break;
 
     // LY Register - Game cannot write to this register directly 
   case 0xFF44:
-    ZRAM[0x44] = 0;
+    GetZRAM()[0x44] = 0;
     break;
     // DMA transfer request
   case 0xFF46:
-    ZRAM[0x46] = data;
+    GetZRAM()[0x46] = data;
     PerformDMATransfer();
     break;
   default:
-    ZRAM[location & 0xFF] = data;
+    GetZRAM()[location & 0xFF] = data;
     break;
   }
 }
+
+
 
 void DraconicMemory::write_vector(std::ofstream& file, std::vector<uint8_t>& vec)
 {

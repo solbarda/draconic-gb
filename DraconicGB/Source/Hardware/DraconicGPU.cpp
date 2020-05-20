@@ -122,9 +122,9 @@ void DraconicGPU::Init(DraconicState* newState, SDL_Window* newWindow, SDL_Rende
 
 void DraconicGPU::SetLCDStatus()
 {
-  uint8_t status = state->memory.STAT.get();
+  uint8_t status = state->memory.GetMemoryLocationData(Addr_STAT);
 
-  uint8_t current_line = state->memory.LY.get();
+  uint8_t current_line = state->memory.GetMemoryLocationData(Addr_LY);
   // extract current LCD mode
   uint8_t current_mode = status & 0x03;
 
@@ -182,21 +182,21 @@ void DraconicGPU::SetLCDStatus()
 
   // Entered new mode, request interrupt
   if (do_interrupt && (mode != current_mode))
-    state->memory.IF.set_bit((EBit)EInterrupt::INTERRUPT_LCDC);
+    *state->memory.GetMemoryLocation(Addr_IF) = SetBit(state->memory.GetMemoryLocationData(Addr_IF), (EBit)EInterrupt::INTERRUPT_LCDC);
 
   // check coincidence flag, set bit 2 if it matches
-  if (state->memory.LY.get() == state->memory.LYC.get())
+  if(state->memory.GetMemoryLocationData(Addr_LY) == state->memory.GetMemoryLocationData(Addr_LYC))
   {
     status = SetBit(status, EBit::BIT_2);
 
     if (IsBitSet(status, EBit::BIT_6))
-      state->memory.IF.set_bit((EBit)EInterrupt::INTERRUPT_LCDC);
+      *state->memory.GetMemoryLocation(Addr_IF) = SetBit(state->memory.GetMemoryLocationData(Addr_IF), (EBit)EInterrupt::INTERRUPT_LCDC);
   }
   // clear bit 2 if not
   else
     status = ClearBit(status, EBit::BIT_2);
 
-  state->memory.STAT.set(status);
+  *state->memory.GetMemoryLocation(Addr_STAT) = status;
   state->memory.video_mode = mode;
 }
 
@@ -207,29 +207,30 @@ void DraconicGPU::UpdateScanline()
 
   SetLCDStatus();
 
-  if (state->memory.LY.get() > 153)
-    state->memory.LY.clear();
+  if (state->memory.GetMemoryLocationData(Addr_LY) > 153)
+    *state->memory.GetMemoryLocation(Addr_LY) = 0x00;
 
   // Enough time has passed to draw the next scanline
   if (scanline_counter <= 0)
   {
-    uint8_t current_scanline = state->memory.LY.get();
+    uint8_t current_scanline = state->memory.GetMemoryLocationData(Addr_LY);
 
     // increment scanline and reset counter
-    state->memory.LY.set(++current_scanline);
+    current_scanline++;
+    *state->memory.GetMemoryLocation(Addr_LY) = current_scanline;
     scanline_counter = 456;
 
     // Entered VBLANK period
     if (current_scanline == 144)
     {
       // Interrupt
-      state->memory.IF.set_bit((EBit)EInterrupt::INTERRUPT_VBLANK);
+      *state->memory.GetMemoryLocation(Addr_IF) = SetBit(state->memory.GetMemoryLocationData(Addr_IF), (EBit)EInterrupt::INTERRUPT_VBLANK);
       if (scanlines_rendered <= 144)
         Render();
     }
     // Reset counter if past maximum
     else if (current_scanline > 153)
-      state->memory.LY.clear();
+      *state->memory.GetMemoryLocation(Addr_LY) = 0x00;
   }
 }
 
@@ -237,15 +238,13 @@ void DraconicGPU::UpdateScanline(uint8_t current_scanline)
 {
   scanlines_rendered++;
 
+  bool do_background = IsBitSet(state->memory.GetMemoryLocationData(Addr_LCDC), EBit::BIT_0);
+  bool do_window = IsBitSet(state->memory.GetMemoryLocationData(Addr_LCDC), EBit::BIT_5);
 
-
-  bool do_background = state->memory.LCDC.is_bit_set(EBit::BIT_0);
-  bool do_window = state->memory.LCDC.is_bit_set(EBit::BIT_5);
-
-  if (/*true || */do_background)
+  if (do_background)
     update_bg_scanline(current_scanline);
 
-  if (/*true || */do_window)
+  if (do_window)
     update_window_scanline(current_scanline);
 }
 
@@ -254,7 +253,6 @@ void DraconicGPU::Render()
   if (!is_lcd_enabled())
     return;
 
-  //window.clear(sf::Color::Transparent);
 
   // clear existig sprite and window data
   for (int i = 0; i < 160 * 144 * 4; ++i)
@@ -262,22 +260,10 @@ void DraconicGPU::Render()
     sprite_data[i] = 0;
   }
 
-  bool do_sprites = state->memory.LCDC.is_bit_set(EBit::BIT_1);
+  bool do_sprites = IsBitSet(state->memory.GetMemoryLocationData(Addr_LCDC), EBit::BIT_1);
 
   if (do_sprites)
     render_sprites();
-
-
- /* bg_texture.loadFromImage(bg_array);
-  sprites_texture.loadFromImage(sprites_array);
-
-  window_sprite.setTexture(window_texture);
-  bg_sprite.setTexture(bg_texture);
-  sprites_sprite.setTexture(sprites_texture);
-*/
-
-  //SDL_UpdateTexture(bg_array, NULL, pixels, 160 * sizeof(Uint32));
-
 
   for (int i = 0; i < 160 * 144; ++i)
   {
@@ -308,7 +294,7 @@ void DraconicGPU::Render()
 
 void DraconicGPU::update_bg_scanline(uint8_t current_scanline)
 {
-  bool bg_code_area = state->memory.LCDC.is_bit_set(EBit::BIT_3);
+  bool bg_code_area = IsBitSet(state->memory.GetMemoryLocationData(Addr_LCDC), EBit::BIT_3);
 
   if (debug_enabled)
   {
@@ -316,12 +302,11 @@ void DraconicGPU::update_bg_scanline(uint8_t current_scanline)
   }
 
   uint16_t tile_map_location = (bg_code_area) ? 0x9C00 : 0x9800;
-  uint8_t scroll_x = state->memory.SCX.get();
-  uint8_t scroll_y = state->memory.SCY.get();
 
-  //cout << hex << (int)scroll_x << " y: " << (int)scroll_y << endl;
+  uint8_t scroll_x = state->memory.GetMemoryLocationData(Addr_SCX);
+  uint8_t scroll_y = state->memory.GetMemoryLocationData(Addr_SCY);
 
-  uint8_t palette = state->memory.BGP.get();
+  uint8_t palette = state->memory.GetMemoryLocationData(Addr_BGP);
 
   // For each pixel in the 160x1 scanline:
   // 1. Calculate where the pixel resides in the overall 256x256 background map
@@ -364,15 +349,15 @@ void DraconicGPU::update_bg_scanline(uint8_t current_scanline)
 void DraconicGPU::update_window_scanline(uint8_t current_scanline)
 {
   // Get current window tile map
-  bool window_code_area = state->memory.LCDC.is_bit_set(EBit::BIT_6);
+  bool window_code_area = IsBitSet(state->memory.GetMemoryLocationData(Addr_LCDC), EBit::BIT_6);
 
   uint16_t tile_map_location = (window_code_area) ? 0x9C00 : 0x9800;
 
-  int window_x = (int)state->memory.WX.get();
-  int window_y = (int)state->memory.WY.get();
+  int window_x = (int)state->memory.GetMemoryLocationData(Addr_WX);
+  int window_y = (int)state->memory.GetMemoryLocationData(Addr_WY);
 
-  uint8_t palette = state->memory.BGP.get();
-
+  uint8_t palette = state->memory.GetMemoryLocationData(Addr_BGP);
+  
   // For each pixel in the 160x1 scanline:
   // 1. Calculate where the pixel resides in the overall 256x256 background map
   // 2. Get the tile ID where that pixel is located
@@ -420,7 +405,7 @@ void DraconicGPU::update_window_scanline(uint8_t current_scanline)
 
 void DraconicGPU::update_bg_tile_pixel(uint8_t palette, int display_x, int display_y, int tile_x, int tile_y, uint8_t tile_id)
 {
-  bool bg_char_selection = state->memory.LCDC.is_bit_set(EBit::BIT_4);
+  bool bg_char_selection = IsBitSet(state->memory.GetMemoryLocationData(Addr_LCDC), EBit::BIT_4);
 
   if (debug_enabled)
   {
@@ -456,7 +441,6 @@ void DraconicGPU::update_bg_tile_pixel(uint8_t palette, int display_x, int displ
   bg_data[display_y * 160 * 4 + display_x * 4+2] = color.b;
   bg_data[display_y * 160 * 4 + display_x * 4+3] = color.a;
 
-  //bg_array.setPixel(display_x, display_y, color);
 }
 
 void DraconicGPU::update_window_tile_pixel(uint8_t palette, int display_x, int display_y, int tile_x, int tile_y, uint8_t tile_id)
@@ -466,7 +450,8 @@ void DraconicGPU::update_window_tile_pixel(uint8_t palette, int display_x, int d
   if (display_y >= 144 || display_y < 0)
     return;
 
-  bool bg_char_selection = state->memory.LCDC.is_bit_set(EBit::BIT_4);
+  //bool bg_char_selection = state->memory.LCDC.is_bit_set(EBit::BIT_4);
+  bool bg_char_selection = IsBitSet(state->memory.GetMemoryLocationData(Addr_LCDC), EBit::BIT_4);
 
   if (debug_enabled)
   {
@@ -502,13 +487,11 @@ void DraconicGPU::update_window_tile_pixel(uint8_t palette, int display_x, int d
   window_data[display_y * 160 * 4 + display_x * 4 + 2] = color.b;
   window_data[display_y * 160 * 4 + display_x * 4 + 3] = color.a;
 
-  //sf::Color color = get_pixel_color(palette, low, high, tile_x, false);
-  //window_array.setPixel(display_x, display_y, color);
 }
 
 bool DraconicGPU::is_lcd_enabled()
 {
-  return state->memory.LCDC.is_bit_set(EBit::BIT_7);
+  return IsBitSet(state->memory.GetMemoryLocationData(Addr_LCDC), EBit::BIT_7);
 }
 
 PixelColor DraconicGPU::get_pixel_color(uint8_t palette, uint8_t top, uint8_t bottom, int bit, bool is_sprite)
@@ -548,10 +531,10 @@ void DraconicGPU::clear_window()
 void DraconicGPU::render_sprites()
 {
   uint16_t sprite_data_location = 0xFE00;
-  uint8_t palette_0 = state->memory.OBP0.get();
-  uint8_t palette_1 = state->memory.OBP1.get();
+  uint8_t palette_0 = state->memory.GetMemoryLocationData(Addr_OBP0);
+  uint8_t palette_1 = state->memory.GetMemoryLocationData(Addr_OBP1);
 
-  bool use_8x16_sprites = state->memory.LCDC.is_bit_set(EBit::BIT_2);
+  bool use_8x16_sprites = IsBitSet(state->memory.GetMemoryLocationData(Addr_LCDC), EBit::BIT_2);
 
   // 160 bytes of sprite data / 4 bytes per sprite = 40 potential sprites to render maximum
   // Start at 39 -> to have right priority

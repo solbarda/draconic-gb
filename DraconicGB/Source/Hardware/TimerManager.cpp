@@ -24,18 +24,18 @@ void TimerManager::UpdateTimers()
     // enough CPU clock cycles have happened to update timer
     if (timer_counter <= 0)
     {
-      uint8_t timer_value = state->memory.TIMA.get();
+      uint8_t timer_value = state->memory.GetMemoryLocationData(Addr_TIMA);
       SetTimerFrequency();
 
       // Timer will overflow, generate interrupt
       if (timer_value == 255)
       {
-        state->memory.TIMA.set(state->memory.TMA.get());
-        state->memory.IF.set_bit((EBit)EInterrupt::INTERRUPT_TIMER);
+        *state->memory.GetMemoryLocation(Addr_TIMA) = state->memory.GetMemoryLocationData(Addr_TMA);
+        *state->memory.GetMemoryLocation(Addr_IF) = SetBit(state->memory.GetMemoryLocationData(Addr_IF), (EBit)EInterrupt::INTERRUPT_TIMER);
       }
       else
       {
-        state->memory.TIMA.set(timer_value + 1);
+        *state->memory.GetMemoryLocation(Addr_TIMA) = timer_value + 1;
       }
     }
   }
@@ -43,12 +43,12 @@ void TimerManager::UpdateTimers()
 
 bool TimerManager::IsTimerEnabled()
 {
-  return state->memory.TAC.is_bit_set(EBit::BIT_2);
+  return IsBitSet(state->memory.GetMemoryLocationData(Addr_TAC), EBit::BIT_2);
 }
 
 uint8_t TimerManager::GetTimerFrequency()
 {
-  return (state->memory.TAC.get() & 0x3);
+  return state->memory.GetMemoryLocationData(Addr_TAC) & 0x3;
 }
 
 void TimerManager::SetTimerFrequency()
@@ -74,6 +74,6 @@ void TimerManager::UpdateDivider(int cycles)
   if (DividerCounter >= 256) // 16384 Hz
   {
     DividerCounter = 0;
-    state->memory.DIV.set(state->memory.DIV.get() + 1);
+    *state->memory.GetMemoryLocation(Addr_DIV) = state->memory.GetMemoryLocationData(Addr_DIV) + 1;
   }
 }

@@ -35,7 +35,7 @@ void InputManager::ProcessInputData(SDL_KeyboardEvent& key, bool bPressed)
     state->memory.joypad_buttons = bPressed ? ClearBit(joypad, key_id) : SetBit(joypad, key_id);
 
   // Request a joypad interrupt
-  state->memory.IF.set_bit((EBit)EInterrupt::INTERRUPT_JOYPAD);
+  *state->memory.GetMemoryLocation(Addr_IF) = SetBit(state->memory.GetMemoryLocationData(Addr_IF), (EBit)EInterrupt::INTERRUPT_JOYPAD);
 }
 
 void InputManager::OnKeyPressed(SDL_KeyboardEvent key)

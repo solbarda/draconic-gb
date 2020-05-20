@@ -390,7 +390,8 @@ void DraconicEmulator::DebugRender()
     ImGui::Text("AccumTime  = %.2fms", accumTime*1000.0f);
     ImGui::Text("TargetTime = %.2fms", 1000.0f/ framerate);
     ImGui::Text("Registers: -------------");
-    ImGui::Text("A: %s   B: %s   C: %s   D: %s", 
+   
+    ImGui::Text("A: %s   B: %s   C: %s   D: %s",
       std::bitset<8>(state.registers.A).to_string().c_str(), std::bitset<8>(state.registers.B).to_string().c_str(), std::bitset<8>(state.registers.C).to_string().c_str(), std::bitset<8>(state.registers.D).to_string().c_str());
     ImGui::Text("E: %s   H: %s   L: %s   F: %s",
       std::bitset<8>(state.registers.E).to_string().c_str(), std::bitset<8>(state.registers.H).to_string().c_str(), std::bitset<8>(state.registers.L).to_string().c_str(), std::bitset<8>(state.registers.F).to_string().c_str());
@@ -398,15 +399,15 @@ void DraconicEmulator::DebugRender()
       std::bitset<16>(state.registers.SP).to_string().c_str(), std::bitset<16>(state.registers.PC).to_string().c_str());
     ImGui::Text("Special Registers: -------------");
     ImGui::Text("P1:   %s   DIV:  %s   TIMA: %s   TMA:  %s",
-      std::bitset<8>(state.memory.P1.get()).to_string().c_str(), std::bitset<8>(state.memory.DIV.get()).to_string().c_str(), std::bitset<8>(state.memory.TIMA.get()).to_string().c_str(), std::bitset<8>(state.memory.TMA.get()).to_string().c_str());
+      std::bitset<8>(state.memory.GetMemoryLocationData(Addr_P1)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_DIV)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_TIMA)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_TMA)).to_string().c_str());
     ImGui::Text("TAC:  %s   LCDC: %s   STAT: %s   SCY:  %s",
-      std::bitset<8>(state.memory.TAC.get()).to_string().c_str(), std::bitset<8>(state.memory.LCDC.get()).to_string().c_str(), std::bitset<8>(state.memory.STAT.get()).to_string().c_str(), std::bitset<8>(state.memory.SCY.get()).to_string().c_str());
+      std::bitset<8>(state.memory.GetMemoryLocationData(Addr_TAC)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_LCDC)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_STAT)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_SCY)).to_string().c_str());
     ImGui::Text("SCX:  %s   LYC:  %s   LY:   %s   DMA:  %s",
-      std::bitset<8>(state.memory.SCX.get()).to_string().c_str(), std::bitset<8>(state.memory.LYC.get()).to_string().c_str(), std::bitset<8>(state.memory.LY.get()).to_string().c_str(), std::bitset<8>(state.memory.DMA.get()).to_string().c_str());
+      std::bitset<8>(state.memory.GetMemoryLocationData(Addr_SCX)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_LYC)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_LY)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_DMA)).to_string().c_str());
     ImGui::Text("BGP:  %s   OBP0: %s   OBP1: %s   WY:   %s",
-      std::bitset<8>(state.memory.BGP.get()).to_string().c_str(), std::bitset<8>(state.memory.OBP0.get()).to_string().c_str(), std::bitset<8>(state.memory.OBP1.get()).to_string().c_str(), std::bitset<8>(state.memory.WY.get()).to_string().c_str());
+      std::bitset<8>(state.memory.GetMemoryLocationData(Addr_BGP)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_OBP0)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_OBP1)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_WY)).to_string().c_str());
     ImGui::Text("WX:   %s   IF:   %s   IE:   %s",
-      std::bitset<8>(state.memory.WX.get()).to_string().c_str(), std::bitset<8>(state.memory.IF.get()).to_string().c_str(), std::bitset<8>(state.memory.IE.get()).to_string().c_str());
+      std::bitset<8>(state.memory.GetMemoryLocationData(Addr_WX)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_IF)).to_string().c_str(), std::bitset<8>(state.memory.GetMemoryLocationData(Addr_IE)).to_string().c_str());
 
     ImGui::End();
   }
@@ -417,29 +418,29 @@ void DraconicEmulator::DebugRender()
     if (bDebugDisplayVRAM)
     {
       static MemoryEditor memoryEditorVRAM;
-      size_t dataSizeVRAM = state.memory.VRAM.size() * sizeof(unsigned char);
-      memoryEditorVRAM.DrawWindow("VRAM state.memory Editor", state.memory.VRAM.data(), dataSizeVRAM);
+      size_t dataSizeVRAM = Size_VRAM * sizeof(uint8_t);
+      memoryEditorVRAM.DrawWindow("VRAM state.memory Editor", state.memory.GetMemoryLocation(Addr_VRAM), dataSizeVRAM);
       bDebugDisplayVRAM = memoryEditorVRAM.Open;
     }
     if (bDebugDisplayOAM)
     {
       static MemoryEditor memoryEditorOAM;
-      size_t dataSizeOAM = state.memory.OAM.size() * sizeof(unsigned char);
-      memoryEditorOAM.DrawWindow("OAM state.memory Editor", state.memory.OAM.data(), dataSizeOAM);
+      size_t dataSizeOAM = Size_OAM * sizeof(uint8_t);
+      memoryEditorOAM.DrawWindow("OAM state.memory Editor", state.memory.GetMemoryLocation(Addr_OAM), dataSizeOAM);
       bDebugDisplayOAM = memoryEditorOAM.Open;
     }
     if (bDebugDisplayWRAM)
     {
       static MemoryEditor memoryEditorWRAM;
-      size_t dataSizeWRAM = state.memory.WRAM.size() * sizeof(unsigned char);
-      memoryEditorWRAM.DrawWindow("WRAM state.memory Editor", state.memory.WRAM.data(), dataSizeWRAM);
+      size_t dataSizeWRAM = Size_WRAM * sizeof(uint8_t);
+      memoryEditorWRAM.DrawWindow("WRAM state.memory Editor", state.memory.GetMemoryLocation(Addr_WRAM), dataSizeWRAM);
       bDebugDisplayWRAM = memoryEditorWRAM.Open;
     }
     if (bDebugDisplayZRAM)
     {
       static MemoryEditor memoryEditorZRAM;
-      size_t dataSizeZRAM = state.memory.ZRAM.size() * sizeof(unsigned char);
-      memoryEditorZRAM.DrawWindow("ZRAM state.memory Editor", state.memory.ZRAM.data(), dataSizeZRAM);
+      size_t dataSizeZRAM = Size_ZRAM * sizeof(uint8_t);
+      memoryEditorZRAM.DrawWindow("ZRAM state.memory Editor", state.memory.GetMemoryLocation(Addr_ZRAM), dataSizeZRAM);
       bDebugDisplayZRAM = memoryEditorZRAM.Open;
     }
     if (bEmulatorStarted && bDebugDisplayROM)

@@ -4,16 +4,17 @@
 
 void InterruptManager::RequestInterrupt(uint8_t id)
 {
-  state->memory.IF.set_bit((EBit)id);
+  *state->memory.GetMemoryLocation(Addr_IF) = SetBit(state->memory.GetMemoryLocationData(Addr_IF), (EBit)id);
+
 }
 
 void InterruptManager::DoInterrupts()
 {
   // If there are any interrupts set
-  if (state->memory.IF.get() > 0)
+  if (state->memory.GetMemoryLocationData(Addr_IF) > 0)
   {
     // Resume  CPU state if halted and interrupts are pending
-    if (state->memory.IE.get() > 0)
+    if (state->memory.GetMemoryLocationData(Addr_IE) > 0)
     {
 
       if (state->halted)
@@ -25,9 +26,9 @@ void InterruptManager::DoInterrupts()
     // Loop through each bit and call interrupt for lowest . highest priority bits set
     for (int i = 0; i < 5; i++)
     {
-      if (state->memory.IF.is_bit_set((EBit)i))
+      if(IsBitSet(state->memory.GetMemoryLocationData(Addr_IF),(EBit)i))
       {
-        if (state->memory.IE.is_bit_set((EBit)i))
+        if (IsBitSet(state->memory.GetMemoryLocationData(Addr_IE), (EBit)i))
         {
           // IME only disables the servicing of interrupts,
           // not all interrupt functionality 
@@ -44,7 +45,7 @@ void InterruptManager::DoInterrupts()
 void InterruptManager::ServiceInterrupt(uint8_t id)
 {
   state->interrupt_master_enable = false;
-  state->memory.IF.clear_bit((EBit)id);
+  *state->memory.GetMemoryLocation(Addr_IF) = ClearBit(state->memory.GetMemoryLocationData(Addr_IF), (EBit)id);
 
   uint8_t PCHigh = (uint8_t)(state->registers.PC >> 8) & 0xFF;
   uint8_t PCLow = (uint8_t)(state->registers.PC) & 0xFF;
