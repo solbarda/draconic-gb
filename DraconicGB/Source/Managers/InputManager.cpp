@@ -21,7 +21,7 @@ void InputManager::ProcessInputData(SDL_KeyboardEvent& key, bool bPressedNow)
   }
 
   // Set joypad variable to different value depending if directional key or not
-  uint8_t joypad = (bIsDirectionalKey) ? state->memory.joypad_arrows : state->memory.joypad_buttons;
+  uint8_t joypad = (bIsDirectionalKey) ? state->memory.joypadArrows : state->memory.joypadButtons;
   bool bPressedBefore = !IsBitSet(joypad, (EBit)keyID);
 
   // If we want to press but the key is already pressed or we want to release but the kye is already released do nothing
@@ -30,9 +30,9 @@ void InputManager::ProcessInputData(SDL_KeyboardEvent& key, bool bPressedNow)
 
   // Set the corresponding bits
   if (bIsDirectionalKey)
-    state->memory.joypad_arrows = bPressedNow ? ClearBit(joypad, keyID) : SetBit(joypad, keyID);
+    state->memory.joypadArrows = bPressedNow ? ClearBit(joypad, keyID) : SetBit(joypad, keyID);
   else
-    state->memory.joypad_buttons = bPressedNow ? ClearBit(joypad, keyID) : SetBit(joypad, keyID);
+    state->memory.joypadButtons = bPressedNow ? ClearBit(joypad, keyID) : SetBit(joypad, keyID);
 
   // Request a joypad interrupt
   *state->memory.GetMemoryLocation(Addr_IF) = SetBit(state->memory.GetMemoryLocationData(Addr_IF), (EBit)EInterrupt::INTERRUPT_JOYPAD);

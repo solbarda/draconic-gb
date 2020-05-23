@@ -2,6 +2,10 @@
 #include "Utils/Utils.h"
 #include <iostream>
 
+
+// Memory implementation based on mattbruv code
+
+
 unsigned char DraconicCartridge::Read(uint16_t location)
 {
   switch (MemoryType)
@@ -18,30 +22,25 @@ unsigned char DraconicCartridge::Read(uint16_t location)
   break;
   case EMemoryBankControllerType::MBC1:
   {
-    // ROM bank 0 (read only)
     if (location >= 0x0000 && location <= 0x3FFF)
     {
       return CART_ROM[location];
     }
-    // ROM banks 01-7F (read only)
     else if (location >= 0x4000 && location <= 0x7FFF)
     {
-      // only ROM banks 0x00 - 0x1F can be used during mode 1
-      unsigned char temp_id = ROM_bank_id;
+      unsigned char temp_id = ROMBankID;
 
       int offset = location - 0x4000;
       int lookup = (temp_id * 0x4000) + offset;
 
       return CART_ROM[lookup];
     }
-    // RAM banks 00 - 03, if any (read/write)
     else if (location >= 0xA000 && location <= 0xBFFF)
     {
-      if (RAM_access_enabled == false)
+      if (RAMAccessEnabled == false)
         return 0xFF;
 
-      // only RAM bank 0 can be used during ROM mode
-      unsigned char temp_id = (RAM_bank_enabled) ? RAM_bank_id : 0x00;
+      unsigned char temp_id = (RAMBankEnabled) ? RAMBankID : 0x00;
 
       int offset = location - 0xA000;
       int lookup = (temp_id * 0x2000) + offset;
@@ -54,30 +53,27 @@ unsigned char DraconicCartridge::Read(uint16_t location)
     break;
   case EMemoryBankControllerType::MBC3:
   {
-    // ROM bank 0 (read only)
     if (location >= 0x0000 && location <= 0x3FFF)
     {
       return CART_ROM[location];
     }
-    // ROM banks 01-7F (read only)
     else if (location >= 0x4000 && location <= 0x7FFF)
     {
       int offset = location - 0x4000;
-      int lookup = (ROM_bank_id * 0x4000) + offset;
+      int lookup = (ROMBankID * 0x4000) + offset;
 
       return CART_ROM[lookup];
     }
-    // RAM banks 00 - 03, if any (read/write)
     else if (location >= 0xA000 && location <= 0xBFFF)
     {
       if (RTC_enabled)
         return 0x00;
 
-      if (RAM_access_enabled == false)
+      if (RAMAccessEnabled == false)
         return 0xFF;
 
       int offset = location - 0xA000;
-      int lookup = (RAM_bank_id * 0x2000) + offset;
+      int lookup = (RAMBankID * 0x2000) + offset;
 
       return ERAM[lookup];
     }
@@ -100,72 +96,59 @@ void DraconicCartridge::Write(uint16_t location, uint8_t data)
   break;
   case EMemoryBankControllerType::MBC1:
   {
-    // RAM enable (write only)
     if (location >= 0x0000 && location <= 0x1FFF)
     {
-      // Any value with 0x0A in lower 4 bits enables, everything else disables
-      RAM_access_enabled = ((data & 0x0A) > 0) ? true : false;
+      RAMAccessEnabled = ((data & 0x0A) > 0) ? true : false;
     }
-    // ROM bank id low bits select (write only)
     else if (location >= 0x2000 && location <= 0x3FFF)
     {
-      // bottom 5 bits represent bank number from 0x00 -> 0x1F
       unsigned char bank_id = data & 0x1F;
 
-      ROM_bank_id = (ROM_bank_id & 0xE0) | bank_id;
+      ROMBankID = (ROMBankID & 0xE0) | bank_id;
 
-      // Prevent bank zero from being accessed
-      // TODO: may need to adjust this to include other banks
-      switch (ROM_bank_id)
+      switch (ROMBankID)
       {
       case 0x00:
       case 0x20:
       case 0x40:
       case 0x60:
-        ROM_bank_id++;
+        ROMBankID++;
         break;
       }
     }
-    // RAM bank id, or upper bits of ROM bank id
     else if (location >= 0x4000 && location <= 0x5FFF)
     {
-      // extract bottom 2 bits
       unsigned char bank_id = data & 0x03;
 
-      // data represents RAM bank ID
-      if (RAM_bank_enabled)
+      if (RAMBankEnabled)
       {
-        RAM_bank_id = bank_id;
+        RAMBankID = bank_id;
       }
-      // data represents top bits of ROM bank ID
       else
       {
-        ROM_bank_id = ROM_bank_id | (bank_id << 5);
+        ROMBankID = ROMBankID | (bank_id << 5);
 
-        // Adjust bank ID to prevent certain banks from being accessed
-        switch (ROM_bank_id)
+        switch (ROMBankID)
         {
         case 0x00:
         case 0x20:
         case 0x40:
         case 0x60:
-          ROM_bank_id++;
+          ROMBankID++;
           break;
         }
       }
     }
-    // Bank selector
     else if (location >= 0x6000 && location <= 0x7FFF)
     {
-      RAM_bank_enabled = IsBitSet(data, (EBit)0);
+      RAMBankEnabled = IsBitSet(data, (EBit)0);
     }
-    // RAM banks 00 - 03, if any (read/write)
     else if (location >= 0xA000 && location <= 0xBFFF)
     {
-      if (RAM_access_enabled)
+      if (RAMAccessEnabled)
       {
         int offset = location - 0xA000;
-        int lookup = (RAM_bank_id * 0x2000) + offset;
+        int lookup = (RAMBankID * 0x2000) + offset;
 
         ERAM[lookup] = data;
       }
@@ -181,35 +164,31 @@ void DraconicCartridge::Write(uint16_t location, uint8_t data)
   {
     if (location >= 0x0000 && location <= 0x1FFF)
     {
-      // Any value with 0x0A in lower 4 bits enables, everything else disables
       if ((data & 0x0A) > 0)
       {
-        RAM_access_enabled = true;
+        RAMAccessEnabled = true;
         RTC_enabled = true;
       }
       else
       {
-        RAM_access_enabled = false;
+        RAMAccessEnabled = false;
         RTC_enabled = false;
       }
     }
     else if (location >= 0x2000 && location <= 0x3FFF)
     {
-      // bits 0-6 bits represent bank number from 0x00 -> 0x1F
-      ROM_bank_id = data & 0x7F;
+      ROMBankID = data & 0x7F;
 
-      if (ROM_bank_id == 0)
-        ROM_bank_id++;
+      if (ROMBankID == 0)
+        ROMBankID++;
     }
     else if (location >= 0x4000 && location <= 0x5FFF)
     {
-      // RAM bank
       if (data <= 0x3)
       {
         RTC_enabled = false;
-        RAM_bank_id = data;
+        RAMBankID = data;
       }
-      // RTC mapped
       else if (data >= 0x08 && data <= 0x0C)
       {
         RTC_enabled = true;
@@ -217,24 +196,21 @@ void DraconicCartridge::Write(uint16_t location, uint8_t data)
     }
     else if (location >= 0x6000 && location <= 0x7FFF)
     {
-      // TODO: Latch clock data
     }
     else if (location >= 0xA000 && location <= 0xBFFF)
     {
-      // writing to RAM
       if (!RTC_enabled)
       {
-        if (!RAM_access_enabled)
+        if (!RAMAccessEnabled)
           return;
 
         int offset = location - 0xA000;
-        int lookup = (RAM_bank_id * 0x2000) + offset;
+        int lookup = (RAMBankID * 0x2000) + offset;
 
         ERAM[lookup] = data;
       }
       else
       {
-        // TODO: RTC writing
       }
     }
   }
@@ -242,68 +218,10 @@ void DraconicCartridge::Write(uint16_t location, uint8_t data)
   }
 }
 
-void DraconicCartridge::Init(std::vector<unsigned char> cartridge_buffer)
+void DraconicCartridge::Init(std::vector<unsigned char> cartridgeBuffer)
 {
-  CART_ROM = cartridge_buffer;
-  ERAM = std::vector<unsigned char>(0x8000); // $A000 - $BFFF, 8kB switchable RAM bank, size liable to change in future
+  // Initalize the cartridge ROM data based on the buffer and init the external ram
+  CART_ROM = cartridgeBuffer;
+  ERAM = std::vector<unsigned char>(0x8000);
 }
 
-std::vector<unsigned char> DraconicCartridge::GetRAM()
-{
-  return ERAM;
-}
-
-void DraconicCartridge::SetRAM(std::vector<unsigned char> data)
-{
-  ERAM = data;
-}
-
-void DraconicCartridge::SaveState(std::ofstream& file) {
-  switch (MemoryType)
-  {
-  case EMemoryBankControllerType::MBC1:
-    file.write((char*)&ROM_bank_id, sizeof(ROM_bank_id));
-    file.write((char*)&RAM_bank_id, sizeof(RAM_bank_id));
-    file.write((char*)&RAM_bank_enabled, sizeof(RAM_bank_enabled));
-    file.write((char*)&RAM_access_enabled, sizeof(RAM_access_enabled));
-    file.write((char*)&mode, sizeof(mode));
-    std::cout << "wrote registers" << std::endl;
-    break;
-  case EMemoryBankControllerType::MBC3:
-    file.write((char*)&ROM_bank_id, sizeof(ROM_bank_id));
-    file.write((char*)&RAM_bank_id, sizeof(RAM_bank_id));
-    file.write((char*)&RAM_bank_enabled, sizeof(RAM_bank_enabled));
-    file.write((char*)&RAM_access_enabled, sizeof(RAM_access_enabled));
-    file.write((char*)&mode, sizeof(mode));
-    file.write((char*)&RTC_enabled, sizeof(RTC_enabled));
-    std::cout << "wrote registers" << std::endl;
-    break;
-  default:
-    std::cout << "did nothing" << std::endl;
-  }
-}
-void DraconicCartridge::LoadState(std::ifstream& file) {
-
-  switch (MemoryType)
-  {
-  case EMemoryBankControllerType::MBC1:
-    file.read((char*)&ROM_bank_id, sizeof(ROM_bank_id));
-    file.read((char*)&RAM_bank_id, sizeof(RAM_bank_id));
-    file.read((char*)&RAM_bank_enabled, sizeof(RAM_bank_enabled));
-    file.read((char*)&RAM_access_enabled, sizeof(RAM_access_enabled));
-    file.read((char*)&mode, sizeof(mode));
-    std::cout << "read registers" << std::endl;
-    break;
-  case EMemoryBankControllerType::MBC3:
-    file.read((char*)&ROM_bank_id, sizeof(ROM_bank_id));
-    file.read((char*)&RAM_bank_id, sizeof(RAM_bank_id));
-    file.read((char*)&RAM_bank_enabled, sizeof(RAM_bank_enabled));
-    file.read((char*)&RAM_access_enabled, sizeof(RAM_access_enabled));
-    file.read((char*)&mode, sizeof(mode));
-    file.read((char*)&RTC_enabled, sizeof(RTC_enabled));
-    std::cout << "read registers" << std::endl;
-    break;
-  default:
-    std::cout << "did nothing" << std::endl;
-  }
-}

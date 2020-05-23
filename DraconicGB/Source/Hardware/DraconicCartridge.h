@@ -17,19 +17,19 @@ class DraconicCartridge
 public:
 
   EMemoryBankControllerType MemoryType;
-  // $0000 - $7FFF, 32kB Cartridge (potentially dynamic)
+  // ROM of the cartridge
   std::vector<uint8_t> CART_ROM;
-  // $A000 - $BFFF, 8kB Cartridge external switchable RAM bank
+  // External RAM of the cartridge
   std::vector<uint8_t> ERAM;
 
   bool RTC_enabled = false;
 
   // Bank selectors
-  uint8_t ROM_bank_id = 1;
-  uint8_t RAM_bank_id = 0;
+  uint8_t ROMBankID = 1;
+  uint8_t RAMBankID = 0;
 
-  bool RAM_bank_enabled = false;
-  bool RAM_access_enabled = false;
+  bool RAMBankEnabled = false;
+  bool RAMAccessEnabled = false;
 
   // Mode selector
   uint8_t mode = 0;
@@ -41,9 +41,4 @@ public:
   void Write(uint16_t location, uint8_t data);
   void Init(std::vector<uint8_t> cartridge_buffer);
 
-  // Save states
-  std::vector<uint8_t> GetRAM();
-  void SetRAM(std::vector<uint8_t> data);
-  void SaveState(std::ofstream& file);
-  void LoadState(std::ifstream& file);
 };

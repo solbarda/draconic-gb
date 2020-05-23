@@ -40,7 +40,7 @@ int DraconicEmulator::Start()
   //LoadROMAndStart("./ROM/cpu_instrs/individual/09-op r,r.gb");
   //LoadROMAndStart("./ROM/cpu_instrs/individual/10-bit ops.gb");
   //LoadROMAndStart("./ROM/cpu_instrs/individual/11-op a,(hl).gb");
-  LoadROMAndStart("./ROM/2048.gb");
+  //LoadROMAndStart("./ROM/uoc.gb");
   
   // Start emulator main loop
   MainLoop();
@@ -257,28 +257,25 @@ void DraconicEmulator::DebugRender()
       }
       if (ImGui::BeginMenu("Open Preset Files"))
       {
-        if (ImGui::MenuItem("CPU_instrs.gb"))
-          LoadROMAndStart("./ROM/cpu_instrs/cpu_instrs.gb");
-        if (ImGui::MenuItem("01-special.gb"))
-          LoadROMAndStart("./ROM/cpu_instrs/individual/01-special.gb");
-        if (ImGui::MenuItem("Link.gb"))
-          LoadROMAndStart("./ROM/Link.gb");
-        if (ImGui::MenuItem("Kirby.gb"))
-          LoadROMAndStart("./ROM/Kirby.gb");
-        if (ImGui::MenuItem("Tetris.gb"))
-          LoadROMAndStart("./ROM/Tetris.gb");
-        if (ImGui::MenuItem("Mona_And_The_Witch_Hat.gb"))
-          LoadROMAndStart("./ROM/zgb/Mona_And_The_Witch_Hat.gb");
-        if (ImGui::MenuItem("PrettyPrincessCastleEscape.gb"))
-          LoadROMAndStart("./ROM/zgb/PrettyPrincessCastleEscape.gb");
-        if (ImGui::MenuItem("SuperPrincess.gb"))
-          LoadROMAndStart("./ROM/zgb/SuperPrincess.gb");
-        if(ImGui::MenuItem("tobu.gb"))
-          LoadROMAndStart("./ROM/tobu.gb");
-        if (ImGui::MenuItem("airaki.gb"))
-          LoadROMAndStart("./ROM/airaki.gb");
         if (ImGui::MenuItem("2048.gb"))
           LoadROMAndStart("./ROM/2048.gb");
+        if (ImGui::MenuItem("Mona_And_The_Witch_Hat.gb"))
+          LoadROMAndStart("./ROM/Mona_And_The_Witch_Hat.gb");
+        if (ImGui::MenuItem("PrettyPrincessCastleEscape.gb"))
+          LoadROMAndStart("./ROM/PrettyPrincessCastleEscape.gb");
+        //if (ImGui::MenuItem("SuperPrincess.gb"))
+        //  LoadROMAndStart("./ROM/SuperPrincess.gb");
+        if(ImGui::MenuItem("tobu.gb"))
+          LoadROMAndStart("./ROM/tobu.gb");
+        if (ImGui::MenuItem("CPU_instrs.gb"))
+          LoadROMAndStart("./ROM/cpu_instrs.gb");
+        if (ImGui::MenuItem("m3_bgp_change.gb"))
+          LoadROMAndStart("./ROM/m3_bgp_change.gb");
+        if (ImGui::MenuItem("m3_lcdc_bg_en_change.gb"))
+          LoadROMAndStart("./ROM/m3_lcdc_bg_en_change.gb");
+        if (ImGui::MenuItem("m3_wx_4_change.gb"))
+          LoadROMAndStart("./ROM/m3_wx_4_change.gb");
+        
         
         ImGui::EndMenu();
       }
@@ -385,7 +382,8 @@ void DraconicEmulator::DebugRender()
     static float f = 0.0f;
     static int counter = 0;
 
-    ImGui::Begin("Stats");                          // Create a window called "Hello, world!" and append into it.
+    ImGui::Begin("Stats");
+    ImGui::Text("Rom Name: %s", state.memory.romName.c_str());
     ImGui::Text("ElapsedTime = %.2fms FPS: %.1f", DeltaTime * 1000.0f, 1.0f / DeltaTime);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::Text("AccumTime  = %.2fms", accumTime*1000.0f);
@@ -500,7 +498,7 @@ void DraconicEmulator::SaveState(int id)
 
   if (!file.bad())
   {
-    state.memory.save_state(file);
+    //state.memory.save_state(file);
     file.close();
 
     std::cout << "wrote save state " << id << std::endl;
@@ -514,7 +512,7 @@ void DraconicEmulator::LoadState(int id)
 
   if (file.is_open())
   {
-    state.memory.load_state(file);
+    //state.memory.load_state(file);
     file.close();
 
     std::cout << "loaded state " << id << std::endl;

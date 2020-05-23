@@ -4,18 +4,21 @@
 #include <iostream>
 #include <fstream>
 
+// Memory implementation based on mattbruv code
+
 
 DraconicMemory::DraconicMemory()
 {
+  // Initialize memory to the total size of the memory
   memoryData = std::vector<uint8_t>(Size_Memory);
+  // Reset the memory
   Reset();
 }
 
 void DraconicMemory::Reset()
 {
-  // Initialize input to HIGH state (unpressed)
-  joypad_buttons = 0xF;
-  joypad_arrows = 0xF;
+  joypadButtons = 0xF;
+  joypadArrows = 0xF;
 
   fill(memoryData.begin(), memoryData.end(), 0);
 }
@@ -55,7 +58,7 @@ uint8_t DraconicMemory::GetMemoryLocationData(int location)
 
 void DraconicMemory::PerformDMATransfer()
 {
-  uint16_t  address = (*GetMemoryLocation(Addr_DMA)) << 8; // multiply by 100
+  uint16_t  address = (*GetMemoryLocation(Addr_DMA)) << 8;
   for (int i = 0; i < 0xA0; i++)
   {
     Write((0xFE00 + i), Read(address + i));
@@ -64,33 +67,25 @@ void DraconicMemory::PerformDMATransfer()
 
 unsigned char DraconicMemory::GetJoypadState()
 {
-  //unsigned char request = P1.get();
-  unsigned char request = *(GetMemoryLocation(Addr_P1));
-
-  switch (request)
+  // The joypad state that we returns depends on the value stored at Addr_P1
+  unsigned char joypadTypeRequest = *(GetMemoryLocation(Addr_P1));
+  switch (joypadTypeRequest)
   {
   case 0x10:
-    return joypad_buttons;
+    return joypadButtons;
   case 0x20:
-    return joypad_arrows;
+    return joypadArrows;
   default:
     return 0xFF;
   }
-}
-
-size_t DraconicMemory::GetTotalMemorySize()
-{
-  return memoryData.size() * sizeof(uint8_t);
 }
 
 void DraconicMemory::LoadROM(std::string location)
 {
   std::ifstream input(location, std::ios::binary);
   std::vector<unsigned char> buffer((std::istreambuf_iterator<char>(input)), (std::istreambuf_iterator<char>()));
-
-  // print cartrige data
+  // Get the title so we can print it in the debug window
   std::string title = "";
-
   for (int i = 0x0134; i <= 0x142; i++)
   {
     unsigned char character = buffer[i];
@@ -99,49 +94,12 @@ void DraconicMemory::LoadROM(std::string location)
     else
       title.push_back(tolower(character));
   }
-
   romName = title;
 
-  std::cout << "Title: " << title << std::endl;
-  unsigned char gb_type = buffer[0x0143];
-  std::cout << "Gameboy Type: " << ((gb_type == 0x80) ? "GB Color" : "GB") << std::endl;
-  unsigned char functions = buffer[0x0146];
-  std::cout << "Use " << ((functions == 0x3) ? "Super " : "") << "Gameboy functions" << std::endl;
-
-  std::string cart_types[0x100];
-  cart_types[0x0] = "ROM ONLY";
-  cart_types[0x1] = "ROM+MBC1";
-  cart_types[0x2] = "ROM+MBC1+RAM";
-  cart_types[0x3] = "ROM+MBC1+RAM+BATT";
-  cart_types[0x5] = "ROM+MBC2";
-  cart_types[0x6] = "ROM+MBC2+BATTERY";
-  cart_types[0x8] = "ROM+RAM";
-  cart_types[0x9] = "ROM+RAM+BATTERY";
-  cart_types[0xB] = "ROM+MMM01";
-  cart_types[0xC] = "ROM+MMM01+SRAM";
-  cart_types[0xD] = "ROM+MMM01+SRAM+BATT";
-  cart_types[0xF] = "ROM+MBC3+TIMER+BATT";
-  cart_types[0x10] = "ROM+MBC3+TIMER+RAM+BATT";
-  cart_types[0x11] = "ROM+MBC3";
-  cart_types[0x12] = "ROM+MBC3+RAM";
-  cart_types[0x13] = "ROM+MBC3+RAM+BATT";
-  cart_types[0x19] = "ROM+MBC5";
-  cart_types[0x1A] = "ROM+MBC5+RAM";
-  cart_types[0x1B] = "ROM+MBC5+RAM+BATT";
-  cart_types[0x1C] = "ROM+MBC5+RUMBLE";
-  cart_types[0x1D] = "ROM+MBC5+RUMBLE+SRAM";
-  cart_types[0x1E] = "ROM+MBC5+RUMBLE+SRAM+BATT";
-  cart_types[0x1F] = "Pocket Camera";
-  cart_types[0xFD] = "Bandai TAMA5";
-  cart_types[0xFE] = "Hudson HuC-3";
-  cart_types[0xFF] = "Hudson HuC-1";
-
-  unsigned char cart = buffer[0x0147];
-  std::cout << "Cartridge Type: " << cart_types[cart] << std::endl;
-
+  unsigned char cartridgeMode = buffer[0x0147];
 
   // Assign memory controller based on cartridge specification
-  switch (cart)
+  switch (cartridgeMode)
   {
   case 0x01:
   case 0x02:
@@ -150,7 +108,6 @@ void DraconicMemory::LoadROM(std::string location)
     break;
   case 0x05:
   case 0x06:
-    std::cout << "CONTROLLER NOT IMPLEMENTED" << std::endl;
     cartridge.MemoryType = EMemoryBankControllerType::MBC2;
     break;
   case 0x0F:
@@ -167,20 +124,6 @@ void DraconicMemory::LoadROM(std::string location)
 
   // Initialize controller with cartridge data
   cartridge.Init(buffer);
-
-  unsigned char rsize = buffer[0x0148];
-  std::cout << "ROM Size: " << (32 << rsize) << "kB " << pow(2, rsize + 1) << " banks" << std::endl;
-  int size, banks;
-  switch (buffer[0x149])
-  {
-  case 1: size = 2; banks = 1;
-  case 2: size = 8; banks = 1;
-  case 3: size = 32; banks = 4;
-  case 4: size = 128; banks = 16;
-  default: size = 0; banks = 0;
-  }
-  std::cout << "RAM Size: " << size << "kB " << banks << " banks" << std::endl;
-  std::cout << "Destination Code: " << (buffer[0x014A] == 1 ? "Non-" : "") << "Japanese" << std::endl;
 
   input.close();
 }
@@ -207,7 +150,6 @@ unsigned char DraconicMemory::Read(uint16_t location)
   case 0x8000:
   case 0x9000:
     return GetVRAM()[location & 0x1FFF];
-    //return VRAM[location & 0x1FFF];
 
     // External RAM
   case 0xA000:
@@ -219,7 +161,6 @@ unsigned char DraconicMemory::Read(uint16_t location)
   case 0xD000:
   case 0xE000:
     return GetWRAM()[location & 0x1FFF];
-    //return WRAM[location & 0x1FFF];
 
     // Remaining Working RAM Shadow, I/O, Zero page RAM
   case 0xF000:
@@ -318,24 +259,18 @@ void DraconicMemory::WriteZeroPage(uint16_t location, uint8_t data)
 {
   switch (location)
   {
-    // Joypad Register - only bits 4 & 5 can be written to
   case 0xFF00:
     GetZRAM()[0x00] = (data & 0x30);
     break;
-    // Divider Register - Write as zero no matter content
   case 0xFF04:
     GetZRAM()[0x04] = 0;
     break;
-    // TODO: STAT - writing to match flag resets flag but doesn't change mode
   case 0xFF41:
     GetZRAM()[0x41] = (data & 0xFC) | (memoryData[Addr_STAT] & 0x03);
     break;
-
-    // LY Register - Game cannot write to this register directly 
   case 0xFF44:
     GetZRAM()[0x44] = 0;
     break;
-    // DMA transfer request
   case 0xFF46:
     GetZRAM()[0x46] = data;
     PerformDMATransfer();
@@ -346,24 +281,3 @@ void DraconicMemory::WriteZeroPage(uint16_t location, uint8_t data)
   }
 }
 
-
-
-void DraconicMemory::write_vector(std::ofstream& file, std::vector<uint8_t>& vec)
-{
-
-}
-
-void DraconicMemory::load_vector(std::ifstream& file, std::vector<uint8_t>& vec)
-{
-
-}
-
-void DraconicMemory::save_state(std::ofstream& file)
-{
-
-}
-
-void DraconicMemory::load_state(std::ifstream& file)
-{
-
-}

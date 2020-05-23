@@ -206,7 +206,6 @@ void DraconicGPU::SetLCDStatus()
     status = ClearBit(status, EBit::BIT_2);
 
   *state->memory.GetMemoryLocation(Addr_STAT) = status;
-  state->memory.video_mode = mode;
 }
 
 void DraconicGPU::UpdateScanline()
