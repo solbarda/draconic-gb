@@ -50,7 +50,8 @@ int DraconicEmulator::Start()
 void DraconicEmulator::Shutdown()
 {
   // Cleanup ImGui
-  ImGui_ImplOpenGL3_Shutdown();
+  //ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplOpenGL2_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
 
@@ -135,8 +136,8 @@ int DraconicEmulator::Init()
 
   // Setup Platform/Renderer bindings
   ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
-  ImGui_ImplOpenGL3_Init(glsl_version);
-
+  //ImGui_ImplOpenGL3_Init(glsl_version);
+  ImGui_ImplOpenGL2_Init();
 
   // Init the emulator hardware
   CPU.Init(&state);
@@ -225,7 +226,8 @@ void DraconicEmulator::DebugRender()
   }
 
   // Start the Dear ImGui frame
-  ImGui_ImplOpenGL3_NewFrame();
+  //ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplOpenGL2_NewFrame();
   ImGui_ImplSDL2_NewFrame(window);
   ImGui::NewFrame();
 
@@ -243,10 +245,10 @@ void DraconicEmulator::DebugRender()
         ZeroMemory(&ofn, sizeof(ofn));
         ofn.lStructSize = sizeof(ofn);
         ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
-        ofn.lpstrFilter = "Text Files\0*.txt\0Any File\0*.*\0";
+        ofn.lpstrFilter = "Gameboy Rom File\0*.gb\0Any File\0*.*\0";
         ofn.lpstrFile = filename;
         ofn.nMaxFile = MAX_PATH;
-        ofn.lpstrTitle = "Select a File, yo!";
+        ofn.lpstrTitle = "Select a .gb file";
         ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 
         if (GetOpenFileNameA(&ofn))
@@ -482,7 +484,8 @@ void DraconicEmulator::DebugRender()
   glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
   glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
   glClear(GL_COLOR_BUFFER_BIT);
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 
   SDL_GL_SwapWindow(window);
 }

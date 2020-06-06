@@ -33,6 +33,7 @@
     <ClCompile Include="Source\Managers\TimerManager.cpp" />
     <ClCompile Include="Source\Utils\Utils.cpp" />
     <ClCompile Include="ThirdParty\glad\src\glad.c" />
+    <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_opengl2.cpp" />
     <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_opengl3.cpp" />
     <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_sdl.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
@@ -109,13 +110,13 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Root\Tier1\StudentLife\UOC\TFG\Repo\draconic-gb\DraconicGB\Source;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\glad\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\gl3w\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Root\Tier1\StudentLife\UOC\TFG\Repo\draconic-gb\DraconicGB\Source;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\glad\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\gl3w\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\imgui;D:\Root\Tier1\StudentLife\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\glad2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>COPY /Y "$(SolutionDir)$(SolutionName)\ThirdParty\SDL\lib\x64\SDL2.dll" "$(TargetDir)SDL2.dll"</Command>
@@ -144,7 +145,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Root\Tier1\StudentLife\UOC\TFG\Repo\draconic-gb\DraconicGB\Source;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\glad\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\gl3w\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Root\Tier1\StudentLife\UOC\TFG\Repo\draconic-gb\DraconicGB\Source;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\glad\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\gl3w\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\include;C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\imgui;D:\Root\Tier1\StudentLife\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\glad2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -152,7 +153,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>C:\UOC\TFG\Repo\draconic-gb\DraconicGB\ThirdParty\SDL\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Source\Utils\Utils.h" />
     <ClInclude Include="ThirdParty\glad\include\glad\glad.h" />
     <ClInclude Include="ThirdParty\glad\include\KHR\khrplatform.h" />
+    <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_opengl2.h" />
     <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_opengl3.h" />
     <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_sdl.h" />
     <ClInclude Include="ThirdParty\imgui\imconfig.h" />

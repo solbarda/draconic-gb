@@ -9,18 +9,19 @@
 #include "Managers/InputManager.h"
 #include "Hardware/DraconicState.h"
 // OpenGL Context
-#include <glad/glad.h> 
+//#include <glad/glad.h> 
 // Imgui
 #include "imgui.h"
 #include "examples/imgui_impl_sdl.h"
 #include "examples/imgui_impl_opengl3.h"
+#include "examples/imgui_impl_opengl2.h"
 // SDL
 #include <SDL.h>
 // Standard libraries
 #include <stdio.h>
 #include <chrono>
 
-// Main class that handles everything
+// Main class that handles everything 
 class DraconicEmulator
 {
 public:

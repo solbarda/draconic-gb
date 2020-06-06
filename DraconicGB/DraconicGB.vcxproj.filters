@@ -54,9 +54,6 @@
     <ClCompile Include="Source\Main.cpp">
       <Filter>Source Files\Source</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\glad\src\glad.c">
-      <Filter>Source Files\ThirdParty\glad</Filter>
-    </ClCompile>
     <ClCompile Include="ThirdParty\imgui\imgui.cpp">
       <Filter>Source Files\ThirdParty\imgui</Filter>
     </ClCompile>
@@ -110,6 +107,12 @@
     </ClCompile>
     <ClCompile Include="Source\Utils\Utils.cpp">
       <Filter>Source Files\Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\examples\imgui_impl_opengl2.cpp">
+      <Filter>Source Files\ThirdParty\imgui\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\glad\src\glad.c">
+      <Filter>Source Files\ThirdParty\glad</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -182,6 +185,9 @@
     </ClInclude>
     <ClInclude Include="Source\Utils\Utils.h">
       <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\examples\imgui_impl_opengl2.h">
+      <Filter>Source Files\ThirdParty\imgui\impl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
